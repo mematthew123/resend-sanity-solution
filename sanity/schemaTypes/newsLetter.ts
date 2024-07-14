@@ -1,5 +1,4 @@
 import { defineField, defineType } from "sanity";
-import  ContactListSanity  from "@/sanity/components/ContactListSanity";
 
 export default defineType({
   name: "newsLetter",
@@ -14,15 +13,14 @@ export default defineType({
     defineField({
       name: "emailDetails",
       title: "Body",
-      type: "emailContent",
+      type: "emailContent", // Reference the emailContent schema here
     }),
     defineField({
-      name: "selectedContacts",
-      title: "Selected Contacts",
-      type: "string",
-      components: {
-        input: ContactListSanity,
-      },
+      name: "contacts",
+      title: "Contacts",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "contacts" }] }],
     }),
+   
   ],
 });

@@ -9,7 +9,7 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
   }
 
   return {
-    label: 'Publish and Send',
+    label: 'Let it Rip!',
     onHandle: async () => {
       if (!published) {
         publish.execute();
@@ -21,7 +21,7 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
       console.log('Selected contacts for API:', selectedContacts); // Debug log
 
       try {
-        const response = await fetch(`/api/sanityWebhook`, {
+        const response = await fetch(`/api/sendNewsletter`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

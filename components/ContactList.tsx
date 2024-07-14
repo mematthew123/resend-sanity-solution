@@ -1,4 +1,3 @@
-// app/contacts/ContactList.tsx
 'use client';
 
 import { useState } from 'react';
