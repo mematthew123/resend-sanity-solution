@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { StringInputProps, set, unset } from 'sanity';
 
+export const revalidate = 1;
+
+
 interface Contact {
   id: string;
   email: string;
@@ -33,7 +36,7 @@ const ContactListSanity = (props: StringInputProps) => {
 
   const fetchContacts = async () => {
     try {
-      const response = await fetch('/api/resend-contacts');
+      const response = await fetch('/api/resend-contacts',{ cache: 'no-store' });
       if (!response.ok) {
         throw new Error('Failed to fetch contacts');
       }
