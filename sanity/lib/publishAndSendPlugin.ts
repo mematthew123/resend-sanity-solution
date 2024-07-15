@@ -1,4 +1,10 @@
-import { definePlugin, DocumentActionComponent, useDocumentOperation } from 'sanity'
+import { definePlugin, DocumentActionComponent, useDocumentOperation, SanityDocument } from 'sanity'
+
+interface NewsLetterDocument extends SanityDocument {
+  _type: 'newsLetter';
+  contacts?: string;
+  // Add other properties of newsLetter document if needed
+}
 
 const PublishAndSendAction: DocumentActionComponent = (props) => {
   const { draft, published, id } = props;
@@ -8,6 +14,8 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
     return null;
   }
 
+  const newsLetterDraft = draft as NewsLetterDocument;
+
   return {
     label: 'Let it Rip!',
     onHandle: async () => {
@@ -16,7 +24,24 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
-      const selectedContacts = JSON.parse(draft.selectedContacts as string || '[]');
+      let selectedContacts: string[] = [];
+      try {
+        selectedContacts = JSON.parse(newsLetterDraft.contacts || '[]');
+      } catch (error) {
+        console.error('Error parsing contacts:', error);
+        return {
+          message: 'Error: Invalid contact data',
+          tone: 'critical',
+        };
+      }
+
+      if (!Array.isArray(selectedContacts)) {
+        console.error('Selected contacts is not an array');
+        return {
+          message: 'Error: Selected contacts is not in the correct format',
+          tone: 'critical',
+        };
+      }
 
       console.log('Selected contacts for API:', selectedContacts); // Debug log
 

@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-
+import ContactListSanity from '@/sanity/components/ContactListSanity';
 export default defineType({
   name: "newsLetter",
   title: "Newsletter",
@@ -18,9 +18,10 @@ export default defineType({
     defineField({
       name: "contacts",
       title: "Contacts",
-      type: "array",
-      of: [{ type: "reference", to: [{ type: "contacts" }] }],
+      type: "string",
+      components: {
+        input: ContactListSanity
+      }
     }),
-   
   ],
 });

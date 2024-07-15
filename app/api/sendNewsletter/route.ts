@@ -5,6 +5,7 @@ import { client } from "@/sanity/lib/client";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const apiToken = process.env.NEXT_PUBLIC_SANITY_API_TOKEN;
+const audienceId = process.env.RESEND_AUDIENCE_ID || '';
 
 async function readBody(readable: ReadableStream) {
   const reader = readable.getReader();
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
 
   try {
     const jsonBody = JSON.parse(body);
-    const { documentId } = jsonBody;
+    const { documentId, selectedContacts } = jsonBody;
 
     console.log('Parsed body:', jsonBody);
 
@@ -48,19 +49,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Invalid document type or document not found' }, { status: 400 });
     }
 
-    console.log('Fetching contacts from Sanity');
-    const contacts = await client.fetch(`*[_type == "contacts" && _id in $ids]{email}`, {
-      ids: newsletter.contacts.map((ref: any) => ref._ref)
-    });
-
-    if (!contacts || contacts.length === 0) {
-      console.error('No contacts found');
-      return NextResponse.json({ message: 'No contacts found' }, { status: 400 });
+    if (!selectedContacts || selectedContacts.length === 0) {
+      console.error('No contacts selected');
+      return NextResponse.json({ message: 'No contacts selected' }, { status: 400 });
     }
 
-    console.log(`Preparing to send emails to ${contacts.length} contacts`);
+    console.log('Fetching contacts from Resend');
+    let contacts;
+    try {
+      const response = await resend.contacts.list({ audienceId });
+      console.log('Resend API response:', JSON.stringify(response, null, 2)); // Detailed logging
+
+      if (response && response.data) {
+        contacts = response.data;
+        console.log('Fetched contacts:', contacts);
+      } else {
+        console.error('Unexpected response structure:', JSON.stringify(response, null, 2));
+        return NextResponse.json({ message: 'Unexpected response structure from Resend' }, { status: 500 });
+      }
+    } catch (error) {
+      console.error('Error fetching contacts from Resend:', error);
+      return NextResponse.json({ message: 'Error fetching contacts from Resend' }, { status: 500 });
+    }
+
+    // Filter contacts based on selectedContacts
+    const filteredContacts = contacts.data.filter((contact: { id: any; }) => selectedContacts.includes(contact.id));
+    console.log('Filtered contacts:', filteredContacts);
+
+    if (filteredContacts.length === 0) {
+      console.error('No matching contacts found');
+      return NextResponse.json({ message: 'No matching contacts found' }, { status: 400 });
+    }
+
+    console.log(`Preparing to send emails to ${filteredContacts.length} contacts`);
     
-    const emailBatch = contacts.map((contact: { email: any; }) => ({
+    const emailBatch = filteredContacts.map((contact: { email: any; }) => ({
       from: "Bernice <hello@zephyrpixels.dev>",
       to: [contact.email],
       subject: newsletter.title,
