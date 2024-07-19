@@ -1,65 +1,92 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { StringInputProps, set, unset } from 'sanity';
-
-export const revalidate = 1;
-
+import { debounce } from 'lodash';
 
 interface Contact {
   id: string;
   email: string;
   first_name?: string;
   last_name?: string;
+  unsubscribed?: boolean;
 }
 
-const ContactListSanity = (props: StringInputProps) => {
+const ContactListSanity: React.FC<StringInputProps> = (props) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchContacts();
   }, []);
 
-  useEffect(() => {
-    if (selectedContacts.length > 0) {
-      if (props.onChange) {
-        props.onChange(set(JSON.stringify(selectedContacts)));
-      }
-    } else {
-      if (props.onChange) {
+  const debouncedOnChange = useMemo(
+    () => debounce((value: string[]) => {
+      if (value.length > 0) {
+        props.onChange(set(JSON.stringify(value)));
+      } else {
         props.onChange(unset());
       }
-    }
-  }, [props, selectedContacts]);
+    }, 300),
+    [props]
+  );
+
+  useEffect(() => {
+    debouncedOnChange(selectedContacts);
+    return () => {
+      debouncedOnChange.cancel();
+    };
+  }, [selectedContacts, debouncedOnChange]);
 
   const fetchContacts = async () => {
+    setIsLoading(true);
     try {
-      const response = await fetch('/api/resend-contacts',{ cache: 'no-store' });
+      const response = await fetch('/api/resend-contacts', { cache: 'no-store' });
       if (!response.ok) {
         throw new Error('Failed to fetch contacts');
       }
       const data = await response.json();
-      console.log('Fetched data:', data); // Debug log
       if (Array.isArray(data)) {
         setContacts(data);
       } else {
-        setContacts([]);
-        setError('Received data is not an array');
+        throw new Error('Received data is not an array');
       }
     } catch (error) {
       console.error('Error fetching contacts:', error);
-      setError('Failed to fetch contacts');
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateContact = async (id: string, updateData: Partial<Contact>) => {
+    try {
+      const response = await fetch('/api/resend-contacts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,
+          audienceId: process.env.NEXT_PUBLIC_RESEND_AUDIENCE_ID,
+          ...updateData
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update contact');
+      }
+
+      // Refresh the contact list
+      await fetchContacts();
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
     }
   };
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      setSelectedContacts(contacts.map(contact => contact.id));
-    } else {
-      setSelectedContacts([]);
-    }
+    setSelectedContacts(event.target.checked ? contacts.map(contact => contact.id) : []);
   };
 
   const handleSelectContact = (id: string) => {
@@ -68,7 +95,13 @@ const ContactListSanity = (props: StringInputProps) => {
     );
   };
 
-  const isAllSelected = selectedContacts.length === contacts.length;
+  const handleUnsubscribe = async (id: string) => {
+    await updateContact(id, { unsubscribed: true });
+  };
+
+  if (isLoading) {
+    return <div>Loading contacts...</div>;
+  }
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -79,8 +112,9 @@ const ContactListSanity = (props: StringInputProps) => {
       <label>
         <input
           type="checkbox"
-          checked={isAllSelected}
+          checked={selectedContacts.length === contacts.length}
           onChange={handleSelectAll}
+          aria-label="Select all contacts"
         />
         Select All
       </label>
@@ -92,13 +126,15 @@ const ContactListSanity = (props: StringInputProps) => {
                 type="checkbox"
                 checked={selectedContacts.includes(contact.id)}
                 onChange={() => handleSelectContact(contact.id)}
+                aria-label={`Select ${contact.first_name} ${contact.last_name}`}
               />
               {contact.first_name} {contact.last_name} ({contact.email})
             </label>
+            <button onClick={() => handleUnsubscribe(contact.id)}>Unsubscribe</button>
           </div>
         ))
       ) : (
-        <div>No contacts available</div>
+        <div>No subscribed contacts available</div>
       )}
     </div>
   );

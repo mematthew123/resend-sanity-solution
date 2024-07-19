@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { EmailTemplate } from '@/components/EmailTemplate';
+import { NewsLetterEmailTemplate } from '@/components/NewsLetterEmailTemplate';
 import { client } from "@/sanity/lib/client";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const apiToken = process.env.NEXT_PUBLIC_SANITY_API_TOKEN;
 const audienceId = process.env.RESEND_AUDIENCE_ID || '';
+const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://resend-sanity-solution.vercel.app/';
+
 
 async function readBody(readable: ReadableStream) {
   const reader = readable.getReader();
@@ -82,19 +84,22 @@ export async function POST(request: Request) {
     }
 
     console.log(`Preparing to send emails to ${filteredContacts.length} contacts`);
-    
-    const emailBatch = filteredContacts.map((contact: { email: any; }) => ({
-      from: "Bernice <hello@zephyrpixels.dev>",
-      to: [contact.email],
-      subject: newsletter.title,
-      react: EmailTemplate({
-        title: newsletter.title,
+    const emailBatch = filteredContacts.map(contact => {
+      const unsubscribeUrl = `${websiteUrl}/unsubscribe?id=${contact.id}`;
+      return {
+        from: "Bernice <hello@zephyrpixels.dev>",
+        to: [contact.email],
         subject: newsletter.title,
-        content: newsletter.emailDetails.body
-      }),
-      text: "This is a text version of the email.",
-    }));
-
+        react: NewsLetterEmailTemplate({
+          title: newsletter.title,
+          subject: newsletter.title,
+          content: newsletter.emailDetails.body,
+          recipientId: contact.id,
+          unsubscribeUrl: unsubscribeUrl, // Pass the constructed URL
+        }),
+        text: `This is a text version of the email. To unsubscribe, visit: ${unsubscribeUrl}`,
+      };
+    });
     try {
       const result = await resend.batch.send(emailBatch);
       console.log('Batch email result:', result);

@@ -1,19 +1,16 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-export async function GET() {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || '');
+const audienceId = process.env.RESEND_AUDIENCE_ID || '';
 
+export async function GET() {
   try {
-    const audienceId = process.env.RESEND_AUDIENCE_ID || ''; // Set a default value if undefined
-    const response = await resend.contacts.list({
-      audienceId,
-    });
-    console.log('Resend API response:', response); // Debug log
-    
-    // Check if response.data is an object with a data property that is an array
+    const response = await resend.contacts.list({ audienceId });
+
     if (response.data && response.data.data && Array.isArray(response.data.data)) {
-      return NextResponse.json(response.data.data);
+      const subscribedContacts = response.data.data.filter(contact => contact.unsubscribed !== true);
+      return NextResponse.json(subscribedContacts);
     } else {
       console.error('Unexpected response structure:', response);
       return NextResponse.json([], { status: 200 });
@@ -21,5 +18,64 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching contacts:', error);
     return NextResponse.json({ message: 'Error fetching contacts' }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { id, firstName, lastName, unsubscribed } = await request.json();
+
+    if (id) {
+      // Update contact
+      const response = await resend.contacts.update({
+        audienceId,
+        id,
+        firstName,
+        lastName,
+        unsubscribed,
+      });
+
+      return NextResponse.json(response.data);
+    } else {
+      // Create new contact
+      const { email } = await request.json();
+
+      if (!email) {
+        return NextResponse.json({ message: 'Email is required' }, { status: 400 });
+      }
+
+      const response = await resend.contacts.create({
+        audienceId,
+        email,
+        firstName,
+        lastName,
+      });
+
+      return NextResponse.json(response.data);
+    }
+  } catch (error) {
+    console.error('Error handling contact:', error);
+    return NextResponse.json({ message: `OOps! Something went wrong: ${error}` }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ message: 'Contact ID is required' }, { status: 400 });
+    }
+
+    await resend.contacts.remove({
+      audienceId,
+      id,
+    });
+
+    return NextResponse.json({ message: 'Contact deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting contact:', error);
+    return NextResponse.json({ message: 'Error deleting contact' }, { status: 500 });
   }
 }
