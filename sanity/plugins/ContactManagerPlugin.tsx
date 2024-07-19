@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Stack, Card, Text, Button, TextInput, Box, Switch } from "@sanity/ui";
 import { definePlugin, useClient } from "sanity";
 import { Tool } from "sanity";
+import ContactCard from "./components/ContactCard";
 
-interface Contact {
+export interface Contact {
   id: string;
   email: string;
   firstName?: string;
@@ -130,7 +131,7 @@ export function ContactManagerPlugin() {
         </Text>
 
         {error && (
-          <Text size={2} weight="bold">
+          <Text size={2} weight="bold" >
             {error}
           </Text>
         )}
@@ -164,29 +165,12 @@ export function ContactManagerPlugin() {
         ) : (
           <Stack space={3}>
             {contacts.map((contact) => (
-              <Card key={contact.id} padding={3} radius={2} shadow={1}>
-                <Stack space={2}>
-                  <Text size={2}>{contact.email}</Text>
-                  {(contact.firstName || contact.lastName) && (
-                    <Text size={1} muted>
-                      {contact.firstName} {contact.lastName}
-                    </Text>
-                  )}
-                  <Box>
-                    <Switch
-                      checked={!contact.unsubscribed}
-                      onChange={() =>
-                        updateContact(contact.id, {
-                          unsubscribed: !contact.unsubscribed,
-                        })
-                      }
-                    />
-                    <Text size={1}>
-                      {contact.unsubscribed ? "Unsubscribed" : "Subscribed"}
-                    </Text>
-                  </Box>
-                </Stack>
-              </Card>
+              <ContactCard
+                key={contact.id}
+                contact={contact}
+                onUpdate={updateContact}
+                onDelete={deleteContact}
+              />
             ))}
           </Stack>
         )}
