@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { StringInputProps, set, unset } from 'sanity';
 import { debounce } from 'lodash';
+import { Box, Card, Stack, Text, Checkbox, Button, Flex, Spinner } from '@sanity/ui';
 
 interface Contact {
   id: string;
@@ -100,43 +101,61 @@ const ContactListSanity: React.FC<StringInputProps> = (props) => {
   };
 
   if (isLoading) {
-    return <div>Loading contacts...</div>;
+    return (
+      <Flex align="center" justify="center" height="fill">
+        <Spinner muted />
+        <Text size={2} muted>Loading contacts...</Text>
+      </Flex>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <Text size={2} color='red'>Error: {error}</Text>;
   }
 
   return (
-    <div>
-      <label>
-        <input
-          type="checkbox"
-          checked={selectedContacts.length === contacts.length}
-          onChange={handleSelectAll}
-          aria-label="Select all contacts"
-        />
-        Select All
-      </label>
+    <Box padding={4}>
+      <Card radius={2} shadow={1} padding={3}>
+        <Flex align="center">
+          <Checkbox
+            checked={selectedContacts.length === contacts.length}
+            onChange={handleSelectAll}
+            aria-label="Select all contacts"
+          />
+          <Text size={2} weight="semibold" style={{ marginLeft: '8px' }}>Select All</Text>
+        </Flex>
+      </Card>
       {contacts.length > 0 ? (
-        contacts.map(contact => (
-          <div key={contact.id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={selectedContacts.includes(contact.id)}
-                onChange={() => handleSelectContact(contact.id)}
-                aria-label={`Select ${contact.first_name} ${contact.last_name}`}
-              />
-              {contact.first_name} {contact.last_name} ({contact.email})
-            </label>
-            <button onClick={() => handleUnsubscribe(contact.id)}>Unsubscribe</button>
-          </div>
-        ))
+        <Stack space={3} marginTop={3}>
+          {contacts.map(contact => (
+            <Card key={contact.id} radius={2} shadow={1} padding={3}>
+              <Flex align="center" justify="space-between">
+                <Box>
+                  <Flex align="center">
+                    <Checkbox
+                      checked={selectedContacts.includes(contact.id)}
+                      onChange={() => handleSelectContact(contact.id)}
+                      aria-label={`Select ${contact.first_name} ${contact.last_name}`}
+                    />
+                    <Text size={2} style={{ marginLeft: '8px' }}>
+                      {contact.first_name} {contact.last_name} ({contact.email})
+                    </Text>
+                  </Flex>
+                </Box>
+                <Button
+                  text="Unsubscribe"
+                  tone="critical"
+                  onClick={() => handleUnsubscribe(contact.id)}
+                  size={2}
+                />
+              </Flex>
+            </Card>
+          ))}
+        </Stack>
       ) : (
-        <div>No subscribed contacts available</div>
+        <Text size={2} muted>No subscribed contacts available</Text>
       )}
-    </div>
+    </Box>
   );
 };
 

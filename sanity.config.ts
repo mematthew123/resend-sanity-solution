@@ -42,6 +42,9 @@ export default defineConfig({
   dataset,
   // Add and edit the content schema in the './sanity/schema' folder
   schema,
+  scheduledPublishing: {
+    enabled: false, 
+  },
   plugins: [
     structureTool({ structure }),
     // Vision is a tool that lets you query your content with GROQ in the studio

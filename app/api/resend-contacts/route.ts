@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { id, firstName, lastName, unsubscribed } = await request.json();
+    const { id, email, firstName, lastName, unsubscribed } = await request.json();
 
     if (id) {
       // Update contact
@@ -38,8 +38,6 @@ export async function POST(request: Request) {
       return NextResponse.json(response.data);
     } else {
       // Create new contact
-      const { email } = await request.json();
-
       if (!email) {
         return NextResponse.json({ message: 'Email is required' }, { status: 400 });
       }
@@ -55,7 +53,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error('Error handling contact:', error);
-    return NextResponse.json({ message: `OOps! Something went wrong: ${error}` }, { status: 500 });
+    return NextResponse.json({ message: `OOps! Something went wrong: ${(error as Error).message}` }, { status: 500 });
   }
 }
 
