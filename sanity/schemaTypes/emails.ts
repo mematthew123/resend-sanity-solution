@@ -14,7 +14,7 @@ export default defineType({
     defineField({
       name: "emailDetails",
       title: "Body",
-      type: "emailContent", // Reference the emailContent schema here
+      type: "emailContent",
     }),
   ],
 });

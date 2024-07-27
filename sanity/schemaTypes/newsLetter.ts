@@ -3,7 +3,7 @@ import ContactListSanity from '@/sanity/components/ContactListSanity';
 export default defineType({
   name: "newsLetter",
   title: "Newsletter",
-  type: "object",
+  type: "document",
   fields: [
     defineField({
       name: "title",
@@ -12,7 +12,7 @@ export default defineType({
     }),
     defineField({
       name: "emailDetails",
-      title: "Body",
+      title: "Email Details",
       type: "emailContent", // Reference the emailContent schema here
     }),
     defineField({

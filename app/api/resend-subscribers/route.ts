@@ -9,7 +9,8 @@ export async function GET() {
     const response = await resend.contacts.list({ audienceId });
 
     if (response.data && response.data.data && Array.isArray(response.data.data)) {
-      return NextResponse.json(response.data.data);
+      const subscribedContacts = response.data.data.filter(contact => contact.unsubscribed !== true);
+      return NextResponse.json(subscribedContacts);
     } else {
       console.error('Unexpected response structure:', response);
       return NextResponse.json([], { status: 200 });
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error('Error handling contact:', error);
-    return NextResponse.json({ message: `Oops! Something went wrong: ${(error as Error).message}` }, { status: 500 });
+    return NextResponse.json({ message: `OOps! Something went wrong: ${(error as Error).message}` }, { status: 500 });
   }
 }
 

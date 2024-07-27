@@ -15,6 +15,11 @@ export default defineType({
       title: "Subject",
       type: "string",
     }),
+    defineField({
+      name: "preview",
+      title: "Preview",
+      type: "string",
+    }),
 
     defineField({
       name: "body",

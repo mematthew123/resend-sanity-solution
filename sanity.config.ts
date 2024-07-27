@@ -25,8 +25,8 @@ const structure = (S: any) =>
           S.list()
             .title("Emails")
             .items([
-              S.documentTypeListItem("newsLetter").title("Newsletter"),
-              S.documentTypeListItem("emailSignUp").title("Email Sign Up"),
+              S.documentTypeListItem("newsLetter").title("Newsletter (Marketing Email)"),
+              S.documentTypeListItem("emailSignUp").title("Email Sign Up (Transactional Email)"),
             ])
         ),
       // Add other default items

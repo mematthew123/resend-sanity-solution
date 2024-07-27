@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Card, Text, Button, TextInput, Box, Switch } from "@sanity/ui";
+import {
+  Stack,
+  Card,
+  Text,
+  Button,
+  TextInput,
+  Box,
+} from "@sanity/ui";
 import { definePlugin, useClient } from "sanity";
 import { Tool } from "sanity";
 import ContactCard from "./components/ContactCard";
@@ -17,6 +24,7 @@ export function ContactManagerPlugin() {
   const [newEmail, setNewEmail] = useState("");
   const [newFirstName, setNewFirstName] = useState("");
   const [newLastName, setNewLastName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -123,59 +131,76 @@ export function ContactManagerPlugin() {
     }
   };
 
+  const filteredContacts = contacts.filter((contact) =>
+    `${contact.email} ${contact.firstName} ${contact.lastName}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <Card padding={4}>
+
+<Card padding={5} radius={3} shadow={2}>
+  <Stack space={5}>
+    <Text size={4} weight="bold">
+      Contact Manager
+    </Text>
+
+    {error && (
+      <Text size={3} weight="bold" color="critical">
+        {error}
+      </Text>
+    )}
+
+    <Stack space={4}>
+      <TextInput
+        placeholder="Email"
+        value={newEmail}
+        onChange={(event) => setNewEmail(event.currentTarget.value)}
+      />
+      <TextInput
+        placeholder="First Name"
+        value={newFirstName}
+        onChange={(event) => setNewFirstName(event.currentTarget.value)}
+      />
+      <TextInput
+        placeholder="Last Name"
+        value={newLastName}
+        onChange={(event) => setNewLastName(event.currentTarget.value)}
+      />
+      <Button
+        text="Add Contact"
+        tone="positive"
+        onClick={addContact}
+        disabled={isLoading}
+        fontSize={[2, 2, 3]}
+      />
+    </Stack>
+
+    <Box padding={300} style={{ borderTop: '1px solid #eaeaea' }}>
+      <TextInput
+        placeholder="Search contacts"
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.currentTarget.value)}
+        padding={[3, 3, 4]}
+      />
+    </Box>
+
+    {isLoading ? (
+      <Text size={2} muted>Loading...</Text>
+    ) : (
       <Stack space={4}>
-        <Text size={4} weight="bold">
-          Contact Manager
-        </Text>
-
-        {error && (
-          <Text size={2} weight="bold" >
-            {error}
-          </Text>
-        )}
-
-        <Stack space={3}>
-          <TextInput
-            placeholder="Email"
-            value={newEmail}
-            onChange={(event) => setNewEmail(event.currentTarget.value)}
+        {filteredContacts.map((contact) => (
+          <ContactCard
+            key={contact.id}
+            contact={contact}
+            onUpdate={updateContact}
+            onDelete={deleteContact}
           />
-          <TextInput
-            placeholder="First Name"
-            value={newFirstName}
-            onChange={(event) => setNewFirstName(event.currentTarget.value)}
-          />
-          <TextInput
-            placeholder="Last Name"
-            value={newLastName}
-            onChange={(event) => setNewLastName(event.currentTarget.value)}
-          />
-          <Button
-            text="Add Contact"
-            tone="positive"
-            onClick={addContact}
-            disabled={isLoading}
-          />
-        </Stack>
-
-        {isLoading ? (
-          <Text>Loading...</Text>
-        ) : (
-          <Stack space={3}>
-            {contacts.map((contact) => (
-              <ContactCard
-                key={contact.id}
-                contact={contact}
-                onUpdate={updateContact}
-                onDelete={deleteContact}
-              />
-            ))}
-          </Stack>
-        )}
+        ))}
       </Stack>
-    </Card>
+    )}
+  </Stack>
+</Card>
   );
 }
 

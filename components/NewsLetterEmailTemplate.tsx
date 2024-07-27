@@ -12,7 +12,7 @@ import { PortableTextBlock } from "@portabletext/types";
 import { PortableTextToEmailComponents } from "./PortableTextToEmailComponents";
 
 interface NewsLetterEmailTemplateProps {
-  title: string;
+  preview: string;
   subject: string;
   content: PortableTextBlock[];
   recipientId: string;
@@ -20,6 +20,7 @@ interface NewsLetterEmailTemplateProps {
 }
 
 export const NewsLetterEmailTemplate: React.FC<Readonly<NewsLetterEmailTemplateProps>> = ({
+  preview,
   subject,
   content,
   recipientId,
@@ -30,7 +31,7 @@ export const NewsLetterEmailTemplate: React.FC<Readonly<NewsLetterEmailTemplateP
   return (
     <Html>
       <Head />
-      <Preview>{subject}</Preview>
+      <Preview>{preview}</Preview>
       <Tailwind
         config={{
           theme: {

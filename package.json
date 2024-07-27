@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@react-email/components": "0.0.21",
+    "@sanity/client": "^6.21.1",
     "@sanity/image-url": "^1.0.2",
+    "@sanity/overlays": "^2.3.56",
     "@sanity/preview-kit": "^5.1.0",
+    "@sanity/react-loader": "^1.10.4",
     "@sanity/vision": "^3.49.0",
     "@sanity/webhook": "^4.0.4",
     "next": "14.2.4",

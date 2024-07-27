@@ -10,44 +10,43 @@ interface ContactCardProps {
 
 const ContactCard: React.FC<ContactCardProps> = ({ contact, onUpdate, onDelete }) => {
   return (
-    <Card padding={4} radius={3} shadow={2} style={{ border: '1px solid #eaeaea' }}>
-      <Stack space={3}>
-        <Flex justify="space-between">
-          <Text size={2} weight="semibold">{contact.email}</Text>
-    
-        </Flex>
-        {(contact.firstName || contact.lastName) && (
-          <Text size={1} muted>
-            {contact.firstName} {contact.lastName}
-          </Text>
-        )}
-        <Flex align="center" justify="space-between">
-          <Box>
-            <Switch
-              checked={!contact.unsubscribed}
-              onChange={() =>
-                onUpdate(contact.id, {
-                  unsubscribed: !contact.unsubscribed,
-                })
-              }
-            />
-          <Badge
-            tone={contact.unsubscribed ? "critical" : "positive"}
-            padding={2}
-            marginLeft={2}
-          >
-            {contact.unsubscribed ? "Unsubscribed" : "Subscribed"}
-          </Badge>
-          </Box>
-          <Button
-            text="Delete"
-            tone="critical"
-            onClick={() => onDelete(contact.id)}
-            size={1}
-          />
-        </Flex>
-      </Stack>
-    </Card>
+<Card padding={4} radius={3} shadow={2} style={{ border: '1px solid #eaeaea' }}>
+  <Stack space={4}>
+    <Flex justify="space-between" align="center">
+      <Text size={3} weight="semibold">{contact.email}</Text>
+    </Flex>
+    {(contact.firstName || contact.lastName) && (
+      <Text size={2} muted>
+        {contact.firstName} {contact.lastName}
+      </Text>
+    )}
+    <Flex align="center" justify="space-between">
+      <Flex align="center">
+        <Switch
+          checked={!contact.unsubscribed}
+          onChange={() =>
+            onUpdate(contact.id, {
+              unsubscribed: !contact.unsubscribed,
+            })
+          }
+        />
+        <Badge
+          tone={contact.unsubscribed ? "critical" : "positive"}
+          padding={2}
+          style={{ marginLeft: '12px' }}
+        >
+          {contact.unsubscribed ? "Unsubscribed" : "Subscribed"}
+        </Badge>
+      </Flex>
+      <Button
+        text="Delete"
+        tone="critical"
+        onClick={() => onDelete(contact.id)}
+        size={2}
+      />
+    </Flex>
+  </Stack>
+</Card>
   );
 };
 

@@ -1,11 +1,5 @@
 import * as React from "react";
-import {
-  Body,
-  Head,
-  Html,
-  Preview,
-  Tailwind,
-} from "@react-email/components";
+import { Body, Head, Html, Preview, Tailwind } from "@react-email/components";
 import { PortableTextBlock } from "@portabletext/types";
 import { PortableTextToEmailComponents } from "./PortableTextToEmailComponents";
 
@@ -13,9 +7,11 @@ interface EmailTemplateProps {
   title: string;
   subject: string;
   content: PortableTextBlock[];
+  preview: string;
 }
 
 export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
+  preview,
   subject,
   content,
 }) => {
@@ -23,8 +19,9 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
 
   return (
     <Html>
-      <Head />
-      <Preview>{subject}</Preview>
+      <Head>
+        <Preview>{preview}</Preview>
+      </Head>
       <Tailwind
         config={{
           theme: {

@@ -15,6 +15,7 @@ export async function POST(request: Request) {
       _updatedAt,
       title,
       "emailSubject": emailDetails.subject,
+      "emailPreview": emailDetails.preview,
       "emailBody": emailDetails.body,
     }`;
 
@@ -29,18 +30,21 @@ export async function POST(request: Request) {
     const subject = emailSignUp.emailSubject || "";
     const emailBody = emailSignUp.emailBody || [];
     const title = emailSignUp.title || "";
+    const preview = emailSignUp.emailPreview || "";
 
     // Send confirmation email
     const { data: emailData, error: emailError } = await resend.emails.send({
       from: "Matthew <hello@zephyrpixels.dev>",
       to: [emailAddress],
       subject: subject,
-      react: EmailTemplate({ title, subject, content: emailBody }),
+      react: EmailTemplate({ title, subject, content: emailBody, preview }),
       text: "This is a text version of the email.",
     });
 
     if (emailError) {
-      return new Response(JSON.stringify({ error: emailError }), { status: 500 });
+      return new Response(JSON.stringify({ error: emailError }), {
+        status: 500,
+      });
     }
 
     // Add contact to Resend
@@ -62,22 +66,24 @@ export async function POST(request: Request) {
     const DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET;
 
     const sanityDoc = {
-      _type: 'contacts',
+      _type: "contacts",
       email: emailAddress,
-      subscribedAt: new Date().toISOString()
+      subscribedAt: new Date().toISOString(),
     };
 
-    const mutations = [{
-      create: sanityDoc
-    }];
+    const mutations = [
+      {
+        create: sanityDoc,
+      },
+    ];
 
     const sanityOptions = {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${API_KEY}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${API_KEY}`,
       },
-      body: JSON.stringify({ mutations })
+      body: JSON.stringify({ mutations }),
     };
 
     const sanityUrl = `https://${PROJECT_ID}.api.sanity.io/v2021-06-07/data/mutate/${DATASET}`;
@@ -89,11 +95,13 @@ export async function POST(request: Request) {
       console.error("Error creating Sanity document:", sanityData);
     }
 
-    return new Response(JSON.stringify({ 
-      message: "Subscription successful", 
-      emailData,
-      sanityData
-    }));
+    return new Response(
+      JSON.stringify({
+        message: "Subscription successful",
+        emailData,
+        sanityData,
+      })
+    );
   } catch (error) {
     console.error("Error during subscription process:", error);
     return new Response(

@@ -16,13 +16,19 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
 
   const newsLetterDraft = draft as NewsLetterDocument;
 
+  // If the document is already published, disable the button
+  if (published) {
+    return {
+      label: 'Let it Rip!',
+      disabled: true,
+    }
+  }
+
   return {
     label: 'Let it Rip!',
     onHandle: async () => {
-      if (!published) {
-        publish.execute();
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      publish.execute();
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       let selectedContacts: string[] = [];
       try {
@@ -85,8 +91,6 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
     tone: 'primary',
   }
 };
-
-
 
 export const publishAndSendPlugin = definePlugin({
   name: 'publish-and-send',
