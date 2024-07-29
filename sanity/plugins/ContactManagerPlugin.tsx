@@ -139,7 +139,7 @@ export function ContactManagerPlugin() {
 
   return (
 
-<Card padding={5} radius={3} shadow={2}>
+<Card padding={5} shadow={2}>
   <Stack space={5}>
     <Text size={4} weight="bold">
       Contact Manager
@@ -169,7 +169,7 @@ export function ContactManagerPlugin() {
       />
       <Button
         text="Add Contact"
-        tone="positive"
+        tone="primary"
         onClick={addContact}
         disabled={isLoading}
         fontSize={[2, 2, 3]}
@@ -181,7 +181,7 @@ export function ContactManagerPlugin() {
         placeholder="Search contacts"
         value={searchTerm}
         onChange={(event) => setSearchTerm(event.currentTarget.value)}
-        padding={[3, 3, 4]}
+        padding={[2, 2, 3]}
       />
     </Box>
 
