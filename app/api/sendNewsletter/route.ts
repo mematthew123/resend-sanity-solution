@@ -91,7 +91,7 @@ export async function POST(request: Request) {
         to: [contact.email],
         subject: newsletter.title,
         react: NewsLetterEmailTemplate({
-          title: newsletter.title,
+          preview: newsletter.emailDetails.preview,
           subject: newsletter.title,
           content: newsletter.emailDetails.body,
           recipientId: contact.id,

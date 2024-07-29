@@ -102,9 +102,9 @@ const renderImage = (block: any, blockIndex: number) => (
     key={blockIndex}
     src={urlForImage(block)}
     alt="alt text"
-    width={600}
-    height={600}
-    className="my-4 h-60 w-60 aspect-auto rounded-lg"
+    width={800}
+    height={800}
+    className="my-4 h-auto w-full max-w-lg object-center rounded-lg"
   />
 );
 

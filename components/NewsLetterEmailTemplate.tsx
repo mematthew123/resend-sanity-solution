@@ -41,17 +41,22 @@ export const NewsLetterEmailTemplate: React.FC<Readonly<NewsLetterEmailTemplateP
                 accent: "#f9f9f9",
                 loud: "#333",
               },
+              fontFamily: {
+                sans: ["Helvetica", "Arial", "sans-serif"],
+              },
             },
           },
         }}
       >
         <Body className="bg-accent">
-          <div className="p-4 my-2 items-center justify-center">
-            <div className="text-4xl font-bold text-center mb-4">{subject}</div>
-            <div className="text-lg font-normal text-justify">
+          <div className="bg-white mx-auto p-6 shadow-md rounded-lg">
+            <div className="text-center border-b pb-4 mb-4">
+              <h1 className="text-4xl font-bold text-brand">{subject}</h1>
+            </div>
+            <div className="text-lg font-normal text-justify leading-relaxed">
               {emailComponents}
             </div>
-            <div className="mt-8 text-center">
+            <div className="border-t mt-8 pt-4 text-center">
               <Link
                 href={unsubscribeUrl}
                 className="text-sm text-gray-500 hover:underline"
