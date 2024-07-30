@@ -26,6 +26,12 @@ export default defineType({
       title: "Body",
       type: "blockContent",
     }),
+    defineField({
+      name:"author",
+      title:"Author",
+      type:"reference",
+      to:[{type:"author"}]
+    })
    
   ],
 });

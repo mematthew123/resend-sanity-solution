@@ -17,6 +17,8 @@ interface NewsLetterEmailTemplateProps {
   content: PortableTextBlock[];
   recipientId: string;
   unsubscribeUrl: string;
+  author: string;
+
 }
 
 export const NewsLetterEmailTemplate: React.FC<Readonly<NewsLetterEmailTemplateProps>> = ({
@@ -24,6 +26,7 @@ export const NewsLetterEmailTemplate: React.FC<Readonly<NewsLetterEmailTemplateP
   subject,
   content,
   recipientId,
+  author,
 }) => {
   const emailComponents = PortableTextToEmailComponents(content);
   const unsubscribeUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/unsubscribe?id=${recipientId}`;
