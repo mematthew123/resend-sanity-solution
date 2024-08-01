@@ -13,26 +13,48 @@ import { apiVersion, dataset, projectId } from "./sanity/env";
 import { schema } from "./sanity/schema";
 import { publishAndSendPlugin } from "./sanity/lib/publishAndSendPlugin";
 import { contactManagerPlugin } from "./sanity/plugins/ContactManagerPlugin";
+import { EnvelopeIcon } from "@sanity/icons";
+import { CheckmarkCircleIcon } from "@sanity/icons";
+import { PresentationIcon } from "@sanity/icons";
+import { DiamondIcon } from "@sanity/icons";
+import { TextIcon } from "@sanity/icons";
+import { HighlightIcon } from "@sanity/icons";
 
 const structure = (S: any) =>
   S.list()
     .title("Content")
     .items([
       // Add the "Emails" folder with the specific document types
+      S.documentTypeListItem("hero")
+        .title("Hero Content")
+        .icon(HighlightIcon),
+      S.documentTypeListItem("form")
+        .title("Form Content")
+        .icon(TextIcon),
       S.listItem()
         .title("Emails")
+        .icon(EnvelopeIcon)
         .child(
           S.list()
             .title("Emails")
             .items([
-              S.documentTypeListItem("newsLetter").title("Newsletter (Marketing Email)"),
-              S.documentTypeListItem("emailSignUp").title("Email Sign Up (Transactional Email)"),
+              S.documentTypeListItem("newsLetter")
+                .title("Newsletter (Marketing Email)")
+                .icon(DiamondIcon),
+              S.documentTypeListItem("emailSignUp")
+                .title("Email Sign Up (Transactional Email)")
+                .icon(CheckmarkCircleIcon),
+              S.documentTypeListItem("author")
+                .title("Sender (Who is sending the email)")
+                .icon(PresentationIcon),
             ])
         ),
       // Add other default items
       ...S.documentTypeListItems().filter(
         (listItem: { getId: () => string }) =>
-          !["newsLetter", "emailSignUp", "contacts"].includes(listItem.getId())
+          !["newsLetter", "emailSignUp", "author", "form", "hero"].includes(
+            listItem.getId() as string
+          )
       ),
     ]);
 
@@ -43,7 +65,7 @@ export default defineConfig({
   // Add and edit the content schema in the './sanity/schema' folder
   schema,
   scheduledPublishing: {
-    enabled: false, 
+    enabled: false,
   },
   plugins: [
     structureTool({ structure }),

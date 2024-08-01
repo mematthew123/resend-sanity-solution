@@ -21,6 +21,7 @@
     "next": "14.2.4",
     "next-sanity": "^9.4.2",
     "react": "^18",
+    "react-canvas-confetti": "^2.0.7",
     "react-dom": "^18",
     "react-email": "2.1.5",
     "resend": "^3.4.0",

@@ -7,7 +7,7 @@ export default defineType({
     fields: [
         defineField({
             name: "name",
-            title: "Name",
+            title: "Name ( This will appear in the email as the sender )",
             type: "string",
         }),
     ],

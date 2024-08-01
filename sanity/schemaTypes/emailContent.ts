@@ -5,11 +5,7 @@ export default defineType({
   title: "Email Content",
   type: "object",
   fields: [
-    defineField({
-      name: "title",
-      title: "Title",
-      type: "string",
-    }),
+
     defineField({
       name: "subject",
       title: "Subject",
