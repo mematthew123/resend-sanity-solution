@@ -19,6 +19,9 @@ import { PresentationIcon } from "@sanity/icons";
 import { DiamondIcon } from "@sanity/icons";
 import { TextIcon } from "@sanity/icons";
 import { HighlightIcon } from "@sanity/icons";
+import {BoltIcon} from '@sanity/icons'
+import imageGallery from "./sanity/schemaTypes/imageGallery";
+
 
 const structure = (S: any) =>
   S.list()
@@ -31,6 +34,9 @@ const structure = (S: any) =>
       S.documentTypeListItem("form")
         .title("Form Content")
         .icon(TextIcon),
+        S.documentTypeListItem("imageGallery")
+        .title("Image Gallery")
+        .icon(BoltIcon),
       S.listItem()
         .title("Emails")
         .icon(EnvelopeIcon)
@@ -52,7 +58,7 @@ const structure = (S: any) =>
       // Add other default items
       ...S.documentTypeListItems().filter(
         (listItem: { getId: () => string }) =>
-          !["newsLetter", "emailSignUp", "author", "form", "hero"].includes(
+          !["newsLetter", "emailSignUp", "author", "form", "hero","imageGallery"].includes(
             listItem.getId() as string
           )
       ),
