@@ -31,9 +31,7 @@ export default defineType({
               name: 'alt',
               title: 'Alternative Text',
               type: 'string',
-              options: {
-                isHighlighted: true  // Makes this field easily accessible in the studio
-              }
+             
             }
           ]
         }
