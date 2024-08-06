@@ -1,15 +1,26 @@
+// /api/resend-contacts/route.ts
+
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY || '');
 const audienceId = process.env.RESEND_AUDIENCE_ID || '';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const subscribedOnly = searchParams.get('subscribedOnly') === 'true';
+
     const response = await resend.contacts.list({ audienceId });
 
     if (response.data && response.data.data && Array.isArray(response.data.data)) {
-      return NextResponse.json(response.data.data);
+      let contacts = response.data.data;
+
+      if (subscribedOnly) {
+        contacts = contacts.filter(contact => contact.unsubscribed !== true);
+      }
+
+      return NextResponse.json(contacts);
     } else {
       console.error('Unexpected response structure:', response);
       return NextResponse.json([], { status: 200 });

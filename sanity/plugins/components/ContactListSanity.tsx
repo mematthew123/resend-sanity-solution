@@ -52,7 +52,7 @@ const ContactListSanity: React.FC<StringInputProps> = (props) => {
   const fetchContacts = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/resend-subscribers", {
+      const response = await fetch("/api/resend-contacts", {
         cache: "no-store",
       });
       if (!response.ok) {

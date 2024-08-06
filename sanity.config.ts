@@ -11,8 +11,8 @@ import { structureTool } from "sanity/structure";
 // Go to https://www.sanity.io/docs/api-versioning to learn how API versioning works
 import { apiVersion, dataset, projectId } from "./sanity/env";
 import { schema } from "./sanity/schema";
-import { publishAndSendPlugin } from "./sanity/lib/publishAndSendPlugin";
-import { contactManagerPlugin } from "./sanity/plugins/ContactManagerPlugin";
+import { publishAndSendPlugin } from "./sanity/plugins/publishAndSendPlugin";
+import { contactManagerPlugin } from "./sanity/plugins/contactManagerPlugin";
 import { EnvelopeIcon } from "@sanity/icons";
 import { CheckmarkCircleIcon } from "@sanity/icons";
 import { PresentationIcon } from "@sanity/icons";

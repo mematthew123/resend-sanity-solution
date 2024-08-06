@@ -1,5 +1,5 @@
 import { defineField, defineType } from "sanity";
-import ContactListSanity from '@/sanity/components/ContactListSanity';
+import ContactListSanity from '@/sanity/plugins/components/ContactListSanity'
 export default defineType({
   name: "newsLetter",
   title: "Newsletter",
