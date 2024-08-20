@@ -1,21 +1,21 @@
-import * as React from "react";
-import { PortableTextBlock } from "@portabletext/types";
-import { Text, Img, Link, Button } from "@react-email/components";
-import { urlForImage } from "@/sanity/lib/image";
+import * as React from 'react';
+import {PortableTextBlock} from '@portabletext/types';
+import {Text, Img, Link, Button} from '@react-email/components';
+import {urlForImage} from '@/sanity/lib/image';
 
 const renderTextWithMarks = (child: any, childIndex: number) => {
   let textElement = child.text;
 
-  if (child.marks.includes("strong")) {
+  if (child.marks.includes('strong')) {
     textElement = <strong key={childIndex}>{textElement}</strong>;
   }
-  if (child.marks.includes("em")) {
+  if (child.marks.includes('em')) {
     textElement = <em key={childIndex}>{textElement}</em>;
   }
-  if (child.marks.some((mark: any) => mark._type === "link")) {
+  if (child.marks.some((mark: any) => mark._type === 'link')) {
     const link = child.markDefs?.find(
       (def: any) =>
-        def._key === child.marks.find((mark: any) => mark._type === "link")
+        def._key === child.marks.find((mark: any) => mark._type === 'link'),
     );
     textElement = (
       <Link
@@ -31,11 +31,29 @@ const renderTextWithMarks = (child: any, childIndex: number) => {
   return textElement;
 };
 
+const renderImageGrid = (block: any, blockIndex: number) => {
+  const images = block.images || [];
+  return (
+    <div key={blockIndex} className="my-4 grid grid-cols-2 gap-4">
+      {images.map((image: any, imageIndex: number) => (
+        <Img
+          key={imageIndex}
+          src={urlForImage(image)}
+          alt={image.alt || 'Grid image'}
+          width={400}
+          height={400}
+          className="h-auto w-full rounded-lg object-cover"
+        />
+      ))}
+    </div>
+  );
+};
+
 const renderButton = (block: any, blockIndex: number) => (
   <Button
     key={blockIndex}
     href={block.link}
-    className={`px-4 py-2 rounded ${block.style === "primary" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
+    className={`rounded px-4 py-2 ${block.style === 'primary' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
   >
     {block.label}
   </Button>
@@ -43,10 +61,10 @@ const renderButton = (block: any, blockIndex: number) => (
 
 const renderTextBlock = (block: any, blockIndex: number) => {
   const styleClassMap = {
-    normal: "text-lg font-normal mb-4",
-    h1: "text-3xl font-bold mb-4",
-    h2: "text-2xl font-bold mb-3",
-    h3: "text-xl font-bold mb-2",
+    normal: 'text-lg font-normal mb-4',
+    h1: 'text-3xl font-bold mb-4',
+    h2: 'text-2xl font-bold mb-3',
+    h3: 'text-xl font-bold mb-2',
   };
 
   const className =
@@ -61,19 +79,19 @@ const renderTextBlock = (block: any, blockIndex: number) => {
   );
 };
 
-const renderList = (items: React.ReactNode[], type: "bullet" | "number") => {
-  if (type === "bullet") {
+const renderList = (items: React.ReactNode[], type: 'bullet' | 'number') => {
+  if (type === 'bullet') {
     return (
-      <div className="ml-4 mb-4">
+      <div className="mb-4 ml-4">
         {items.map((item, index) => (
           <div key={index}>• {item}</div>
         ))}
       </div>
     );
   } else {
-    if (type === "number") {
+    if (type === 'number') {
       return (
-        <Text className="ml-4 mb-4">
+        <Text className="mb-4 ml-4">
           {items.map((item, index) => (
             <React.Fragment key={index}>
               {index + 1}. {item}
@@ -86,7 +104,7 @@ const renderList = (items: React.ReactNode[], type: "bullet" | "number") => {
   }
 
   return (
-    <Text className="ml-4 mb-4">
+    <Text className="mb-4 ml-4">
       {items.map((item, index) => (
         <React.Fragment key={index}>
           {index + 1}. {item}
@@ -104,16 +122,16 @@ const renderImage = (block: any, blockIndex: number) => (
     alt="alt text"
     width={800}
     height={800}
-    className="my-4 h-auto w-full max-w-lg object-center rounded-lg"
+    className="my-4 h-auto w-full max-w-lg rounded-lg object-center"
   />
 );
 
 export const PortableTextToEmailComponents = (
-  blocks: PortableTextBlock[]
+  blocks: PortableTextBlock[],
 ): React.ReactNode[] => {
   const result: React.ReactNode[] = [];
   let currentList: React.ReactNode[] = [];
-  let currentListType: "bullet" | "number" | null = null;
+  let currentListType: 'bullet' | 'number' | null = null;
 
   const flushList = () => {
     if (currentList.length > 0) {
@@ -124,21 +142,24 @@ export const PortableTextToEmailComponents = (
   };
 
   blocks.forEach((block: any, blockIndex) => {
-    if (block._type === "block") {
+    if (block._type === 'block') {
       if (block.listItem) {
         if (currentListType !== block.listItem) {
           flushList();
-          currentListType = block.listItem as "bullet" | "number";
+          currentListType = block.listItem as 'bullet' | 'number';
         }
         currentList.push(block.children.map(renderTextWithMarks));
       } else {
         flushList();
         result.push(renderTextBlock(block, blockIndex));
       }
-    } else if (block._type === "image") {
+    } else if (block._type === 'image') {
       flushList();
       result.push(renderImage(block, blockIndex));
-    } else if (block._type === "button") {
+    } else if (block._type === 'imageGrid') {
+      flushList();
+      result.push(renderImageGrid(block, blockIndex));
+    } else if (block._type === 'button') {
       flushList();
       result.push(renderButton(block, blockIndex));
     }

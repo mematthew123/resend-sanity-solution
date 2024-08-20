@@ -25,9 +25,44 @@ const ContactListSanity: React.FC<StringInputProps> = (props) => {
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [audienceName, setAudienceName] = useState<string | null>(null);
+
+  const fetchContactsAndAudience = async () => {
+    setIsLoading(true);
+    try {
+      const contactsResponse = await fetch("/api/resend-contacts", { cache: "no-store" });
+      if (!contactsResponse.ok) {
+        throw new Error("Failed to fetch contacts");
+      }
+      const contactsData = await contactsResponse.json();
+      console.log("Contacts Data:", contactsData);
+  
+      const audienceResponse = await fetch("/api/audiences", { cache: "no-store" });
+      if (!audienceResponse.ok) {
+        throw new Error("Failed to fetch audience data");
+      }
+      const audienceData = await audienceResponse.json();
+      console.log("Audience Data:", audienceData);
+  
+      if (!Array.isArray(audienceData.data)) {
+        throw new Error("Received audience data is not an array");
+      }
+  
+      const audienceName = audienceData.data.length > 0 ? audienceData.data[0].name : "Unknown Audience";
+      console.log("Selected Audience Name:", audienceName);
+  
+      setContacts(contactsData);
+      setAudienceName(audienceName);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError("An unknown error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchContacts();
+    fetchContactsAndAudience();
   }, []);
 
   const debouncedOnChange = useMemo(
@@ -49,75 +84,10 @@ const ContactListSanity: React.FC<StringInputProps> = (props) => {
     };
   }, [selectedContacts, debouncedOnChange]);
 
-  const fetchContacts = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/resend-contacts", {
-        cache: "no-store",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch contacts");
-      }
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        setContacts(data);
-      } else {
-        throw new Error("Received data is not an array");
-      }
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
-      setError(
-        error instanceof Error ? error.message : "An unknown error occurred"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateContact = async (id: string, updateData: Partial<Contact>) => {
-    try {
-      const response = await fetch("/api/resend-contacts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id,
-          audienceId: process.env.NEXT_PUBLIC_RESEND_AUDIENCE_ID,
-          ...updateData,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update contact");
-      }
-
-      // Refresh the contact list
-      await fetchContacts();
-    } catch (error) {
-      console.error("Error updating contact:", error);
-      setError(
-        error instanceof Error ? error.message : "An unknown error occurred"
-      );
-    }
-  };
-
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedContacts(
       event.target.checked ? contacts.map((contact) => contact.id) : []
     );
-  };
-
-  const handleSelectContact = (id: string) => {
-    setSelectedContacts((prev) =>
-      prev.includes(id)
-        ? prev.filter((contactId) => contactId !== id)
-        : [...prev, id]
-    );
-  };
-
-  const handleUnsubscribe = async (id: string) => {
-    await updateContact(id, { unsubscribed: true });
   };
 
   if (isLoading) {
@@ -149,40 +119,10 @@ const ContactListSanity: React.FC<StringInputProps> = (props) => {
             aria-label="Select all contacts"
           />
           <Text size={2} weight="semibold" style={{ marginLeft: "12px" }}>
-            Select All
+            {audienceName} ({contacts.length} contacts)
           </Text>
         </Flex>
       </Card>
-      {contacts.length > 0 ? (
-        <Stack space={4} marginTop={4}>
-          {contacts.map((contact) => (
-            <Card key={contact.id} radius={2} shadow={1} padding={4}>
-              <Flex align="center" justify="space-between">
-                <Flex align="center">
-                  <Checkbox
-                    checked={selectedContacts.includes(contact.id)}
-                    onChange={() => handleSelectContact(contact.id)}
-                    aria-label={`Select ${contact.first_name} ${contact.last_name}`}
-                  />
-                  <Text size={2} style={{ marginLeft: "12px" }}>
-                    {contact.first_name} {contact.last_name} ({contact.email})
-                  </Text>
-                </Flex>
-                <Button
-                  text="Unsubscribe"
-                  tone="critical"
-                  onClick={() => handleUnsubscribe(contact.id)}
-                  size={2}
-                />
-              </Flex>
-            </Card>
-          ))}
-        </Stack>
-      ) : (
-        <Text size={2} muted style={{ marginTop: "16px" }}>
-          No contacts available
-        </Text>
-      )}
     </Box>
   );
 };

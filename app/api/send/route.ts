@@ -71,6 +71,8 @@ async function sendIndividualEmail(emailAddress: string, emailSignUp: any) {
   }
 }
 
+
+// this is where we send out the newsletter
 async function sendNewsletter(documentId: string, selectedContacts: string[]) {
   const newsletter = await client.fetch(
     `*[_id == $id][0]{
