@@ -65,15 +65,10 @@ const parseContacts = (contacts?: string): string[] => {
 };
 
 const sendNewsletter = async (documentId: string, selectedContacts: string[]) => {
-  if (!process.env.NEXT_PUBLIC_SANITY_API_TOKEN) {
-    throw new Error("Missing API token");
-  }
-
   const response = await fetch(`/api/send`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_SANITY_API_TOKEN}`,
     },
     body: JSON.stringify({
       documentId,

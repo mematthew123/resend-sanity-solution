@@ -35,23 +35,24 @@ const ContactListSanity: React.FC<StringInputProps> = (props) => {
         throw new Error("Failed to fetch contacts");
       }
       const contactsData = await contactsResponse.json();
-      console.log("Contacts Data:", contactsData);
-  
+      const filteredContacts = contactsData.filter((contact: Contact) => !contact.unsubscribed);
+      console.log("Contacts Data:", filteredContacts);
+
       const audienceResponse = await fetch("/api/audiences", { cache: "no-store" });
       if (!audienceResponse.ok) {
         throw new Error("Failed to fetch audience data");
       }
       const audienceData = await audienceResponse.json();
       console.log("Audience Data:", audienceData);
-  
+
       if (!Array.isArray(audienceData.data)) {
         throw new Error("Received audience data is not an array");
       }
-  
+
       const audienceName = audienceData.data.length > 0 ? audienceData.data[0].name : "Unknown Audience";
       console.log("Selected Audience Name:", audienceName);
-  
-      setContacts(contactsData);
+
+      setContacts(filteredContacts);
       setAudienceName(audienceName);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -108,6 +109,8 @@ const ContactListSanity: React.FC<StringInputProps> = (props) => {
       </Text>
     );
   }
+
+  console.log("Contacts:", contacts);
 
   return (
     <Box padding={4}>
