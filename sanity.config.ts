@@ -12,7 +12,7 @@ import { structureTool } from "sanity/structure";
 import { apiVersion, dataset, projectId } from "./sanity/env";
 import { schema } from "./sanity/schema";
 import { publishAndSendPlugin } from "./sanity/plugins/publishAndSendPlugin";
-import { contactManagerPlugin } from "./sanity/plugins/contactManagerPlugin";
+import { resendContactManagerPlugin } from "./sanity/plugins/contactManagerPlugin";
 import { EnvelopeIcon } from "@sanity/icons";
 import { CheckmarkCircleIcon } from "@sanity/icons";
 import { PresentationIcon } from "@sanity/icons";
@@ -78,6 +78,7 @@ export default defineConfig({
     // https://www.sanity.io/docs/the-vision-plugin
     visionTool({ defaultApiVersion: apiVersion }),
     publishAndSendPlugin(),
-    contactManagerPlugin(),
+    resendContactManagerPlugin(),
+    
   ],
 });

@@ -19,7 +19,7 @@ export interface Contact {
   unsubscribed?: boolean;
 }
 
-export function ContactManagerPlugin() {
+export function contactManagerPlugin() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [newEmail, setNewEmail] = useState("");
   const [newFirstName, setNewFirstName] = useState("");
@@ -208,11 +208,11 @@ const contactManagerTool = (): Tool => {
   return {
     title: "Contacts",
     name: "contact-manager",
-    component: ContactManagerPlugin,
+    component: contactManagerPlugin,
   };
 };
 
-export const contactManagerPlugin = definePlugin({
+export const resendContactManagerPlugin = definePlugin({
   name: "contact-manager-plugin",
   tools: [contactManagerTool()],
 });
