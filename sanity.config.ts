@@ -68,8 +68,8 @@ export default defineConfig({
   basePath: "/studio",
   projectId,
   dataset,
-  // Add and edit the content schema in the './sanity/schema' folder
   schema,
+  // Set to false to disable the scheduled publishing feature. To enable simply comment out.
   scheduledPublishing: {
     enabled: false,
   },
