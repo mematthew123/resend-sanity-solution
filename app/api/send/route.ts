@@ -71,9 +71,8 @@ async function sendIndividualEmail(emailAddress: string, emailSignUp: any) {
   }
 }
 
-
 // this is where we send out the newsletter
-async function sendNewsletter(documentId: string, selectedContacts: string[]) {
+async function sendNewsletter(documentId: string, selectedContacts: string[], offset: number = 0) {
   const newsletter = await client.fetch(
     `*[_id == $id][0]{
       ...,
@@ -112,7 +111,7 @@ async function sendNewsletter(documentId: string, selectedContacts: string[]) {
     return NextResponse.json({ message: 'No matching contacts found' }, { status: 400 });
   }
 
-  const emailBatch = filteredContacts.map((contact: { id: any; email: any }) => {
+  const emailBatch = filteredContacts.slice(offset, offset + 10).map((contact: { id: any; email: any }) => {
     const unsubscribeUrl = `${websiteUrl}/unsubscribe?id=${contact.id}`;
     return {
       from: `${newsletter.author || 'Newsletter'} <hello@zephyrpixels.dev>`,
@@ -132,7 +131,19 @@ async function sendNewsletter(documentId: string, selectedContacts: string[]) {
 
   try {
     const result = await resend.batch.send(emailBatch);
-    return NextResponse.json({ message: 'Emails sent successfully', result });
+
+    if (offset + 10 < filteredContacts.length) {
+      return NextResponse.json({
+        message: 'Processing next batch...',
+        offset: offset + 10,
+        total: filteredContacts.length,
+      });
+    } else {
+      return NextResponse.json({
+        message: 'All emails sent successfully',
+        totalContacts: filteredContacts.length,
+      });
+    }
   } catch (batchError) {
     console.error('Error sending batch emails:', batchError);
     return NextResponse.json({ message: 'Error sending batch emails', error: batchError }, { status: 500 });
@@ -151,7 +162,8 @@ export async function POST(request: Request) {
       }
       return sendIndividualEmail(jsonBody.emailAddress, emailSignUp);
     } else if (jsonBody.documentId && jsonBody.selectedContacts) {
-      return sendNewsletter(jsonBody.documentId, jsonBody.selectedContacts);
+      const offset = jsonBody.offset || 0;
+      return sendNewsletter(jsonBody.documentId, jsonBody.selectedContacts, offset);
     } else {
       return NextResponse.json({ message: 'Invalid request data' }, { status: 400 });
     }
@@ -160,3 +172,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Oh no! Something went wrong' }, { status: 500 });
   }
 }
+
+export const runtime = 'edge';

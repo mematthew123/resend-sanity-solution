@@ -20,7 +20,6 @@ import { DiamondIcon } from "@sanity/icons";
 import { TextIcon } from "@sanity/icons";
 import { HighlightIcon } from "@sanity/icons";
 import {BoltIcon} from '@sanity/icons'
-import imageGallery from "./sanity/schemaTypes/imageGallery";
 
 
 const structure = (S: any) =>

@@ -40,7 +40,41 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
 
       console.log("Selected contacts for API:", selectedContacts);
 
-      await sendNewsletter(id, selectedContacts);
+      // Initialize offset for polling
+      let offset = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        const response = await fetch(`/api/send`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            documentId: id,
+            selectedContacts,
+            offset,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(`Error: ${result.message}`);
+        }
+
+        if (result.message === "All emails sent successfully") {
+          hasMore = false;
+          console.log("All emails processed successfully.");
+        } else if (result.offset !== undefined) {
+          offset = result.offset;
+          console.log(`Processed up to offset: ${offset}`);
+        } else {
+          throw new Error("Unexpected response structure from the server.");
+        }
+      }
+
+      console.log("Newsletter sending completed.");
     } catch (error) {
       console.error("Error in handleSendNewsletter:", error);
     } finally {
@@ -64,7 +98,10 @@ const parseContacts = (contacts?: string): string[] => {
   }
 };
 
-const sendNewsletter = async (documentId: string, selectedContacts: string[]) => {
+const sendNewsletter = async (
+  documentId: string,
+  selectedContacts: string[]
+) => {
   const response = await fetch(`/api/send`, {
     method: "POST",
     headers: {
