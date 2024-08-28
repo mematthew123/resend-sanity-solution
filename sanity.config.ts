@@ -12,7 +12,7 @@ import { structureTool } from "sanity/structure";
 import { apiVersion, dataset, projectId } from "./sanity/env";
 import { schema } from "./sanity/schema";
 import { publishAndSendPlugin } from "./sanity/plugins/publishAndSendPlugin";
-import { resendContactManagerPlugin } from "./sanity/plugins/contactManagerPlugin";
+import { resendContactManagerPlugin } from "./sanity/plugins/resendContactManagerPlugin";
 import { EnvelopeIcon } from "@sanity/icons";
 import { CheckmarkCircleIcon } from "@sanity/icons";
 import { PresentationIcon } from "@sanity/icons";
