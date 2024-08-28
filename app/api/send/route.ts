@@ -34,6 +34,7 @@ async function fetchEmailSignUp() {
 
   return client.fetch(query);
 }
+const fromEmail = `Matthew <${process.env.RESEND_DOMAIN}>`;
 
 async function sendIndividualEmail(emailAddress: string, emailSignUp: any) {
   const subject = emailSignUp.emailSubject || "";
@@ -43,7 +44,7 @@ async function sendIndividualEmail(emailAddress: string, emailSignUp: any) {
 
   try {
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: "Matthew <hello@zephyrpixels.dev>",
+      from: fromEmail,
       to: [emailAddress],
       subject: subject,
       react: EmailTemplate({ title, subject, content: emailBody, preview }),
@@ -138,8 +139,11 @@ async function sendNewsletter(
     .slice(offset, offset + 10)
     .map((contact: { id: any; email: any }) => {
       const unsubscribeUrl = `${websiteUrl}/unsubscribe?id=${contact.id}`;
+      const fromEmail = `${newsletter.author || "Newsletter"} <${
+        process.env.RESEND_DOMAIN
+      }>`;
       return {
-        from: `${newsletter.author || "Newsletter"} <hello@zephyrpixels.dev>`,
+        from: fromEmail,
         to: [contact.email],
         subject: newsletter.title,
         react: NewsLetterEmailTemplate({
