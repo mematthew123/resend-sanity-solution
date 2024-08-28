@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Stack, Text, Box, Switch, Button, Flex, Badge } from "@sanity/ui";
-import { Contact } from "@/sanity/plugins/contactManagerPlugin";
+import { Contact } from "@/sanity/plugins/resendContactManagerPlugin";
 
 interface ContactCardProps {
   contact: Contact;
