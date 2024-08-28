@@ -27,15 +27,7 @@ const structure = (S: any) =>
     .title("Content")
     .items([
       // Add the "Emails" folder with the specific document types
-      S.documentTypeListItem("hero")
-        .title("Hero Content")
-        .icon(HighlightIcon),
-      S.documentTypeListItem("form")
-        .title("Form Content")
-        .icon(TextIcon),
-        S.documentTypeListItem("imageGallery")
-        .title("Image Gallery")
-        .icon(BoltIcon),
+ 
       S.listItem()
         .title("Emails")
         .icon(EnvelopeIcon)
@@ -57,7 +49,7 @@ const structure = (S: any) =>
       // Add other default items
       ...S.documentTypeListItems().filter(
         (listItem: { getId: () => string }) =>
-          !["newsLetter", "emailSignUp", "author", "form", "hero","imageGallery"].includes(
+          !["newsLetter", "emailSignUp", "author",].includes(
             listItem.getId() as string
           )
       ),

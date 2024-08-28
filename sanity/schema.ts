@@ -4,11 +4,8 @@ import emailContent from "./schemaTypes/emailContent";
 import emails from "./schemaTypes/emails";
 import newsLetter from "./schemaTypes/newsLetter";
 import author from "./schemaTypes/author";
-import form from "./schemaTypes/form";
-import hero from "./schemaTypes/hero";
-import imageGallery from "./schemaTypes/imageGallery";
 import imageGrid from "./schemaTypes/imageGrid";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [blockContent, emailContent, emails,newsLetter,author,form,hero,imageGallery,imageGrid],
+  types: [blockContent, emailContent, emails,newsLetter,author,imageGrid],
 };

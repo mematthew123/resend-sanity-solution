@@ -32,13 +32,10 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
     try {
       publish.execute();
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const selectedContacts = parseContacts(newsLetterDraft.contacts);
       if (!Array.isArray(selectedContacts)) {
         throw new Error("Selected contacts is not an array");
       }
-
-      console.log("Selected contacts for API:", selectedContacts);
 
       // Initialize offset for polling
       let offset = 0;
@@ -65,18 +62,13 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
 
         if (result.message === "All emails sent successfully") {
           hasMore = false;
-          console.log("All emails processed successfully.");
         } else if (result.offset !== undefined) {
           offset = result.offset;
-          console.log(`Processed up to offset: ${offset}`);
         } else {
           throw new Error("Unexpected response structure from the server.");
         }
       }
-
-      console.log("Newsletter sending completed.");
     } catch (error) {
-      console.error("Error in handleSendNewsletter:", error);
     } finally {
       props.onComplete();
     }
@@ -93,15 +85,11 @@ const parseContacts = (contacts?: string): string[] => {
   try {
     return JSON.parse(contacts || "[]");
   } catch (error) {
-    console.error("Error parsing contacts:", error);
     return [];
   }
 };
 
-const sendNewsletter = async (
-  documentId: string,
-  selectedContacts: string[]
-) => {
+async (documentId: string, selectedContacts: string[]) => {
   const response = await fetch(`/api/send`, {
     method: "POST",
     headers: {

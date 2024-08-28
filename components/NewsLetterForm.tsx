@@ -1,10 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { client } from "@/sanity/lib/client";
-import { groq } from "next-sanity";
+import { useState } from "react";
 import Modal from "./Modal";
-
-const newsLetterQuery = groq`*[_type == "form"] | order(_createdAt desc)`;
 
 type Form = {
   heading: string;
@@ -15,14 +11,6 @@ export default function NewsLetter() {
   const [emailAddress, setemailAddress] = useState("");
   const [form, setForm] = useState<Form | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await client.fetch(newsLetterQuery);
-      setForm(data[0]);
-    };
-    fetchData();
-  }, []);
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
