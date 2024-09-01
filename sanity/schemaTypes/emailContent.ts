@@ -23,10 +23,10 @@ export default defineType({
       type: "blockContent",
     }),
     defineField({
-      name:"author",
-      title:"Author",
+      name:"sender",
+      title:"Sender",
       type:"reference",
-      to:[{type:"author"}]
+      to:[{type:"sender"}]
     })
    
   ],

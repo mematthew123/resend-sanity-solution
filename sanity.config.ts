@@ -19,15 +19,15 @@ import { PresentationIcon } from "@sanity/icons";
 import { DiamondIcon } from "@sanity/icons";
 import { TextIcon } from "@sanity/icons";
 import { HighlightIcon } from "@sanity/icons";
-import {BoltIcon} from '@sanity/icons'
-
+import {BoltIcon} from '@sanity/icons';
+import { BookIcon } from "@sanity/icons";
+import { UsersIcon } from "@sanity/icons";
+import { TagIcon } from "@sanity/icons";
 
 const structure = (S: any) =>
   S.list()
     .title("Content")
     .items([
-      // Add the "Emails" folder with the specific document types
- 
       S.listItem()
         .title("Emails")
         .icon(EnvelopeIcon)
@@ -41,15 +41,36 @@ const structure = (S: any) =>
               S.documentTypeListItem("emailSignUp")
                 .title("Email Sign Up (Transactional Email)")
                 .icon(CheckmarkCircleIcon),
-              S.documentTypeListItem("author")
+              S.documentTypeListItem("sender")
                 .title("Sender (Who is sending the email)")
                 .icon(PresentationIcon),
             ])
         ),
+      
+  // Blog Folder
+      S.listItem()
+        .title("Blog")
+        .icon(BookIcon)
+        .child(
+          S.list()
+            .title("Blog")
+            .items([
+              S.documentTypeListItem("blogPost")
+                .title("Blog Posts")
+                .icon(TextIcon),
+              S.documentTypeListItem("author")
+                .title("Authors")
+                .icon(UsersIcon),
+              S.documentTypeListItem("category")
+                .title("Categories")
+                .icon(TagIcon),
+            ])
+        ),
+      
       // Add other default items
       ...S.documentTypeListItems().filter(
         (listItem: { getId: () => string }) =>
-          !["newsLetter", "emailSignUp", "author",].includes(
+          !["newsLetter", "emailSignUp", "sender", "blogPost", "author", "category"].includes(
             listItem.getId() as string
           )
       ),

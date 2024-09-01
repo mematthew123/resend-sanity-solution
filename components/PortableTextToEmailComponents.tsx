@@ -1,21 +1,21 @@
-import * as React from 'react';
-import {PortableTextBlock} from '@portabletext/types';
-import {Text, Img, Link, Button} from '@react-email/components';
-import {urlForImage} from '@/sanity/lib/image';
+import * as React from "react";
+import { PortableTextBlock } from "@portabletext/types";
+import { Text, Img, Link, Button, Section } from "@react-email/components";
+import { urlForImage } from "@/sanity/lib/image";
 
 const renderTextWithMarks = (child: any, childIndex: number) => {
   let textElement = child.text;
 
-  if (child.marks.includes('strong')) {
+  if (child.marks.includes("strong")) {
     textElement = <strong key={childIndex}>{textElement}</strong>;
   }
-  if (child.marks.includes('em')) {
+  if (child.marks.includes("em")) {
     textElement = <em key={childIndex}>{textElement}</em>;
   }
-  if (child.marks.some((mark: any) => mark._type === 'link')) {
+  if (child.marks.some((mark: any) => mark._type === "link")) {
     const link = child.markDefs?.find(
       (def: any) =>
-        def._key === child.marks.find((mark: any) => mark._type === 'link'),
+        def._key === child.marks.find((mark: any) => mark._type === "link")
     );
     textElement = (
       <Link
@@ -39,7 +39,7 @@ const renderImageGrid = (block: any, blockIndex: number) => {
         <Img
           key={imageIndex}
           src={urlForImage(image)}
-          alt={image.alt || 'Grid image'}
+          alt={image.alt || "Grid image"}
           width={400}
           height={400}
           className="h-auto w-full rounded-lg object-cover"
@@ -53,7 +53,7 @@ const renderButton = (block: any, blockIndex: number) => (
   <Button
     key={blockIndex}
     href={block.link}
-    className={`rounded px-4 py-2 ${block.style === 'primary' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+    className={`rounded px-4 py-2 ${block.style === "primary" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}
   >
     {block.label}
   </Button>
@@ -61,10 +61,10 @@ const renderButton = (block: any, blockIndex: number) => (
 
 const renderTextBlock = (block: any, blockIndex: number) => {
   const styleClassMap = {
-    normal: 'text-lg font-normal mb-4',
-    h1: 'text-3xl font-bold mb-4',
-    h2: 'text-2xl font-bold mb-3',
-    h3: 'text-xl font-bold mb-2',
+    normal: "text-lg font-normal mb-4",
+    h1: "text-3xl font-bold mb-4",
+    h2: "text-2xl font-bold mb-3",
+    h3: "text-xl font-bold mb-2",
   };
 
   const className =
@@ -79,8 +79,8 @@ const renderTextBlock = (block: any, blockIndex: number) => {
   );
 };
 
-const renderList = (items: React.ReactNode[], type: 'bullet' | 'number') => {
-  if (type === 'bullet') {
+const renderList = (items: React.ReactNode[], type: "bullet" | "number") => {
+  if (type === "bullet") {
     return (
       <div className="mb-4 ml-4">
         {items.map((item, index) => (
@@ -89,7 +89,7 @@ const renderList = (items: React.ReactNode[], type: 'bullet' | 'number') => {
       </div>
     );
   } else {
-    if (type === 'number') {
+    if (type === "number") {
       return (
         <Text className="mb-4 ml-4">
           {items.map((item, index) => (
@@ -127,11 +127,11 @@ const renderImage = (block: any, blockIndex: number) => (
 );
 
 export const PortableTextToEmailComponents = (
-  blocks: PortableTextBlock[],
+  blocks: PortableTextBlock[]
 ): React.ReactNode[] => {
   const result: React.ReactNode[] = [];
   let currentList: React.ReactNode[] = [];
-  let currentListType: 'bullet' | 'number' | null = null;
+  let currentListType: "bullet" | "number" | null = null;
 
   const flushList = () => {
     if (currentList.length > 0) {
@@ -141,27 +141,61 @@ export const PortableTextToEmailComponents = (
     }
   };
 
+  const renderBlogPostReference = (block: any, blockIndex: number) => {
+    console.log("Blog Post Reference block:", block);
+
+    if (!block.blogPost) {
+      console.log("No blog post data found");
+      return <Text key={blockIndex}>Blog post reference (no data)</Text>;
+    }
+
+    return (
+      <Section
+        key={blockIndex}
+        style={{ margin: "20px 0", padding: "10px", border: "1px solid #ccc" }}
+      >
+        <Text style={{ fontSize: "18px", fontWeight: "bold" }}>
+          {block.blogPost.title || "Untitled"}
+        </Text>
+        <Text style={{ fontSize: "14px", color: "#666" }}>
+          {new Date(block.blogPost.publishedAt).toLocaleDateString()}
+        </Text>
+        <Text>{block.blogPost.excerpt}</Text>
+        <Text>
+          <a
+            href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/blog/${block.blogPost.slug.current}`}
+          >
+            Read more
+          </a>
+        </Text>
+      </Section>
+    );
+  };
+
   blocks.forEach((block: any, blockIndex) => {
-    if (block._type === 'block') {
+    if (block._type === "block") {
       if (block.listItem) {
         if (currentListType !== block.listItem) {
           flushList();
-          currentListType = block.listItem as 'bullet' | 'number';
+          currentListType = block.listItem as "bullet" | "number";
         }
         currentList.push(block.children.map(renderTextWithMarks));
       } else {
         flushList();
         result.push(renderTextBlock(block, blockIndex));
       }
-    } else if (block._type === 'image') {
+    } else if (block._type === "image") {
       flushList();
       result.push(renderImage(block, blockIndex));
-    } else if (block._type === 'imageGrid') {
+    } else if (block._type === "imageGrid") {
       flushList();
       result.push(renderImageGrid(block, blockIndex));
-    } else if (block._type === 'button') {
+    } else if (block._type === "button") {
       flushList();
       result.push(renderButton(block, blockIndex));
+    } else if (block._type === "blogPostReference") {
+      flushList();
+      result.push(renderBlogPostReference(block, blockIndex));
     }
   });
 

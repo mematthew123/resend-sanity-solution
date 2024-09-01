@@ -10,6 +10,8 @@ const audienceId = process.env.RESEND_AUDIENCE_ID || "";
 const websiteUrl =
   process.env.NEXT_PUBLIC_WEBSITE_URL ||
   "https://resend-sanity-solution.vercel.app/";
+const resendDomain = process.env.RESEND_DOMAIN || "zephyrpixels.dev";
+const resendFromName = process.env.RESEND_FROM_NAME || "Info";
 
 async function readBody(readable: ReadableStream): Promise<string> {
   const reader = readable.getReader();
@@ -29,22 +31,29 @@ async function fetchEmailSignUp() {
     title,
     "emailSubject": emailDetails.subject,
     "emailPreview": emailDetails.preview,
-    "emailBody": emailDetails.body,
+    "emailBody": emailDetails.body[]{
+      ...,
+      _type == "blogPostReference" => {
+        ...,
+        "blogPost": @->
+      }
+    },
+    "sender": emailDetails.sender->name,
   }`;
 
   return client.fetch(query);
 }
-const fromEmail = `Matthew <${process.env.RESEND_DOMAIN}>`;
 
 async function sendIndividualEmail(emailAddress: string, emailSignUp: any) {
   const subject = emailSignUp.emailSubject || "";
   const emailBody = emailSignUp.emailBody || [];
   const title = emailSignUp.title || "";
   const preview = emailSignUp.emailPreview || "";
+  const sender = emailSignUp.sender || resendFromName;
 
   try {
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: fromEmail,
+      from: `${sender} <${sender.replace(/\s+/g, "").toLowerCase()}@${resendDomain}>`,
       to: [emailAddress],
       subject: subject,
       react: EmailTemplate({ title, subject, content: emailBody, preview }),
@@ -86,10 +95,25 @@ async function sendNewsletter(
   const newsletter = await client.fetch(
     `*[_id == $id][0]{
       ...,
-      "author": emailDetails.author->name
+      "sender": emailDetails.sender->name,
+      "emailBody": emailDetails.body[]{
+        ...,
+        _type == "blogPostReference" => {
+          ...,
+          "blogPost": @->{
+            _id,
+            title,
+            slug,
+            publishedAt,
+            excerpt
+          }
+        }
+      }
     }`,
     { id: documentId }
   );
+
+  console.log("Fetched newsletter data:", JSON.stringify(newsletter, null, 2));
 
   if (!newsletter || newsletter._type !== "newsLetter") {
     return NextResponse.json(
@@ -129,6 +153,7 @@ async function sendNewsletter(
   );
 
   if (filteredContacts.length === 0) {
+    console.error("No matching contacts found");
     return NextResponse.json(
       { message: "No matching contacts found" },
       { status: 400 }
@@ -139,20 +164,18 @@ async function sendNewsletter(
     .slice(offset, offset + 10)
     .map((contact: { id: any; email: any }) => {
       const unsubscribeUrl = `${websiteUrl}/unsubscribe?id=${contact.id}`;
-      const fromEmail = `${newsletter.author || "Newsletter"} <${
-        process.env.RESEND_DOMAIN
-      }>`;
+      const sender = newsletter.sender || resendFromName;
       return {
-        from: fromEmail,
+        from: `${sender} <${sender.replace(/\s+/g, "").toLowerCase()}@${resendDomain}>`,
         to: [contact.email],
         subject: newsletter.title,
         react: NewsLetterEmailTemplate({
           preview: newsletter.emailDetails.preview,
           subject: newsletter.title,
-          content: newsletter.emailDetails.body,
+          content: newsletter.emailBody,
           recipientId: contact.id,
           unsubscribeUrl: unsubscribeUrl,
-          author: newsletter.author,
+          sender: sender,
         }),
         text: `This is a text version of the email. To unsubscribe, visit: ${unsubscribeUrl}`,
       };
@@ -210,6 +233,7 @@ export async function POST(request: Request) {
       );
     }
   } catch (error) {
+    console.error("Error during email sending process:", error);
     return NextResponse.json(
       { error: "Oh no! Something went wrong" },
       { status: 500 }

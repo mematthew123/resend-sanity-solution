@@ -95,5 +95,12 @@ export default defineType({
         },
       ],
     }),
+
+    defineArrayMember({
+      title: 'Blog Post Reference',
+      name: 'blogPostReference',
+      type: 'reference',
+      to: [{ type: 'blogPost' }],
+    }),
   ],
 });

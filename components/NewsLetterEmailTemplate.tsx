@@ -7,6 +7,10 @@ import {
   Preview,
   Tailwind,
   Link,
+  Container,
+  Heading,
+  Hr,
+  Section,
 } from "@react-email/components";
 import { PortableTextBlock } from "@portabletext/types";
 import { PortableTextToEmailComponents } from "./PortableTextToEmailComponents";
@@ -14,62 +18,70 @@ import { PortableTextToEmailComponents } from "./PortableTextToEmailComponents";
 interface NewsLetterEmailTemplateProps {
   preview: string;
   subject: string;
-  content: PortableTextBlock[];
+  content: any;
   recipientId: string;
   unsubscribeUrl: string;
-  author: string;
-
+  sender: string;
 }
-
-export const NewsLetterEmailTemplate: React.FC<Readonly<NewsLetterEmailTemplateProps>> = ({
+export const NewsLetterEmailTemplate = ({
   preview,
   subject,
   content,
   recipientId,
-  author,
-}) => {
-  const emailComponents = PortableTextToEmailComponents(content);
-  const unsubscribeUrl = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/unsubscribe?id=${recipientId}`;
-
-  return (
-    <Html>
-      <Head />
-      <Preview>{preview}</Preview>
-      <Tailwind
-        config={{
-          theme: {
-            extend: {
-              colors: {
-                brand: "#007291",
-                accent: "#f9f9f9",
-                loud: "#333",
-              },
-              fontFamily: {
-                sans: ["Helvetica", "Arial", "sans-serif"],
-              },
+  unsubscribeUrl,
+  sender,
+}: {
+  preview: string;
+  subject: string;
+  content: any;
+  recipientId: string;
+  unsubscribeUrl: string;
+  sender: string;
+}) => (
+  <Html>
+    <Head />
+    <Preview>{preview}</Preview>
+    <Tailwind
+      config={{
+        theme: {
+          extend: {
+            colors: {
+              brand: "#007291",
+              brand2: "#000000",
+              accent: "#f9f9f9",
+              loud: "#333",
+            },
+            fontFamily: {
+              sans: ["Helvetica", "Arial", "sans-serif"],
             },
           },
-        }}
-      >
-        <Body className="bg-accent">
-          <div className="bg-white mx-auto p-6 shadow-md rounded-lg">
-            <div className="text-center border-b pb-4 mb-4">
-              <h1 className="text-4xl font-bold text-brand">{subject}</h1>
+        },
+      }}
+    >
+      <Body className="bg-accent font-sans">
+        <Container className="mx-auto p-4 max-w-[600px]">
+          <Section className="bg-white p-6 rounded-lg shadow-md">
+            <Heading className="text-3xl font-bold text-brand text-center mb-6">
+              {subject}
+            </Heading>
+            <div className="text-base text-loud mb-4">
+              {PortableTextToEmailComponents(content)}
             </div>
-            <div className="text-lg font-normal text-justify leading-relaxed">
-              {emailComponents}
-            </div>
-            <div className="border-t mt-8 pt-4 text-center">
+            <Hr className="border-t border-gray-300 my-6" />
+            <p className="text-sm text-gray-500 text-center">
+              Sent by {sender}
+            </p>
+            <p className="text-sm text-gray-500 text-center mt-2">
               <Link
                 href={unsubscribeUrl}
-                className="text-sm text-gray-500 hover:underline"
+                className="text-brand hover:underline"
               >
-                Unsubscribe from these emails
+                Unsubscribe
               </Link>
-            </div>
-          </div>
-        </Body>
-      </Tailwind>
-    </Html>
-  );
-};
+            </p>
+          </Section>
+        </Container>
+      </Body>
+    </Tailwind>
+  </Html>
+);
