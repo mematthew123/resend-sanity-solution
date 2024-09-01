@@ -9,11 +9,14 @@
 ## Enviroment Variables
 ```
 
-NEXT_PUBLIC_SANITY_PROJECT_ID=
-NEXT_PUBLIC_SANITY_DATASET=
-RESEND_API_KEY=
-RESEND_AUDIENCE_ID=
-NEXT_PUBLIC_WEBSITE_URL=
+NEXT_PUBLIC_SANITY_PROJECT_ID='<Sanity Project ID>'
+NEXT_PUBLIC_SANITY_DATASET='<Sanity Dataset>'
+RESEND_API_KEY='<Resend API Key>'
+RESEND_AUDIENCE_ID='<Resend Audience ID>'
+NEXT_PUBLIC_WEBSITE_URL='<Your Website URL>'
+RESEND_DOMAIN='<Domain Registered with Resend>'
+RESEND_FROM_NAME='<Name of the Sender (Usually your name, but can be anything you want)>'
+
 
 ```
 ## Deploy on Vercel
