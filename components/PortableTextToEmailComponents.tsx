@@ -126,6 +126,42 @@ const renderImage = (block: any, blockIndex: number) => (
   />
 );
 
+const renderCustomImageGrid = (block: any, blockIndex: number) => {
+  const images = block.images || [];
+  const rows = Math.ceil(images.length / 2);
+
+  return (
+    <Section key={blockIndex} className="my-4 bg-orange-200 rounded-lg">
+      <table className="border-sky-600 border-2 gap-2 rounded-lg">
+        <tbody>
+          {Array.from({ length: rows }).map((_, rowIndex) => (
+            <tr key={rowIndex}>
+              {images
+                .slice(rowIndex * 2, rowIndex * 2 + 2)
+                .map((image: any, colIndex: number) => (
+                  <td key={rowIndex * 2 + colIndex} className="p-2 w-1/2">
+                    <Img
+                      src={urlForImage(image)}
+                      alt={
+                        image.alt || `Grid image ${rowIndex * 2 + colIndex + 1}`
+                      }
+                      width="100%"
+                      height="auto"
+                      className="rounded-lg object-cover w-full h-auto"
+                    />
+                  </td>
+                ))}
+              {rowIndex * 2 + 1 >= images.length && (
+                <td className="p-2 w-1/2"></td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Section>
+  );
+};
+
 export const PortableTextToEmailComponents = (
   blocks: PortableTextBlock[]
 ): React.ReactNode[] => {
@@ -187,9 +223,9 @@ export const PortableTextToEmailComponents = (
     } else if (block._type === "image") {
       flushList();
       result.push(renderImage(block, blockIndex));
-    } else if (block._type === "imageGrid") {
+    } else if (block._type === "customImageGrid") {
       flushList();
-      result.push(renderImageGrid(block, blockIndex));
+      result.push(renderCustomImageGrid(block, blockIndex));
     } else if (block._type === "button") {
       flushList();
       result.push(renderButton(block, blockIndex));

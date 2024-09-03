@@ -81,14 +81,26 @@ export default defineType({
     }),
 
     defineArrayMember({
-      title: 'Custom Image Grid', // Renamed to avoid conflict
-      name: 'customImageGrid', // Unique name
+      title: 'Custom Image Grid',
+      name: 'customImageGrid',
       type: 'object',
       fields: [
         {
           name: 'images',
           type: 'array',
-          of: [{ type: 'image', options: { hotspot: true } }],
+          of: [
+            {
+              type: 'image',
+              options: { hotspot: true },
+              fields: [
+                {
+                  name: 'alt',
+                  type: 'string',
+                  title: 'Alternative Text',
+                },
+              ],
+            },
+          ],
           options: {
             layout: 'grid',
           },

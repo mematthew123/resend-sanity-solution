@@ -1,92 +1,104 @@
 "use client";
-import { useState, useEffect } from "react";
-import { TConductorInstance } from "react-canvas-confetti/dist/types";
-import Realistic from "react-canvas-confetti/dist/presets/realistic";
 
-type ModalProps = {
-  isOpen: boolean;
-  setIsOpen: (value: boolean) => void;
+import { useState } from "react";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import { motion } from "framer-motion";
+
+const draw = {
+  hidden: { pathLength: 0, opacity: 0 },
+  visible: (i: number) => {
+    const delay = 1 + i * 0.5;
+    return {
+      pathLength: 1,
+      opacity: 1,
+      transition: {
+        pathLength: { delay, type: "spring", duration: 1.5, bounce: 0 },
+        opacity: { delay, duration: 0.01 },
+      },
+    };
+  },
 };
 
-const Modal = ({ isOpen, setIsOpen }: ModalProps) => {
-  const [conductor, setConductor] = useState<TConductorInstance>();
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  const triggerConfetti = () => {
-    conductor?.run({ speed: 0.3, duration: 3000 });
-  };
-
-  useEffect(() => {
-    if (conductor) {
-      triggerConfetti();
-    }
-  }, [conductor]);
-
-  useEffect(() => {
-    const handleEsc = (event: { keyCode: number }) => {
-      if (event.keyCode === 27) setIsOpen(false);
-    };
-    window.addEventListener("keydown", handleEsc);
-
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [setIsOpen]);
-
-  if (!isOpen) return null;
-
+export default function Modal({ isOpen, onClose }: ModalProps) {
   return (
-    <>
-      <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center px-4 py-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden max-w-md w-full">
-          <div className="flex justify-end p-4">
-            <button
-              onClick={() => setIsOpen(false)}
-              className="rounded-full p-2 inline-flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="text-center p-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Successfully Subscribed!
-            </h1>
-            <p className="text-md text-gray-700 dark:text-gray-300 mb-4">
-              You have successfully subscribed to our newsletter.
-              <br />
-              Time to Party!
-            </p>
+    <Dialog open={isOpen} onClose={onClose} className="relative z-10">
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
+      />
 
-            <button
-              onClick={() => {
-                triggerConfetti();
-              }}
-              className="inline-flex items-center bg-sky-800 justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all"
-            >
-              Celebrate!
-            </button>
-            <Realistic
-              onInit={({ conductor }: { conductor: TConductorInstance }) =>
-                setConductor(conductor)
-              }
-            />
-          </div>
+      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel
+            transition
+            className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-sm sm:p-6 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+          >
+            <div>
+              <div className="mt-3 text-center sm:mt-5">
+                <DialogTitle
+                  as="h3"
+                  className="text-2xl font-semibold leading-6 text-gray-900"
+                >
+                  Heck yeah!
+                </DialogTitle>
+
+                <div className="flex justify-center items-center py-8">
+                  <motion.svg
+                    width="100"
+                    height="100"
+                    viewBox="0 0 100 100"
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    <motion.circle
+                      cx="50"
+                      cy="50"
+                      r="45"
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="7"
+                      variants={draw}
+                      custom={0}
+                    />
+                    <motion.path
+                      d="M 30 50 L 45 65 L 70 40"
+                      fill="none"
+                      stroke="#22c55e"
+                      strokeWidth="7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      variants={draw}
+                      custom={1}
+                    />
+                  </motion.svg>
+                </div>
+                <div className="mt-2">
+                  <p className="text-lg text-gray-500">You're all set!</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-5 sm:mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="inline-flex w-full justify-center rounded-md bg-sky-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+              >
+                Close
+              </button>
+            </div>
+          </DialogPanel>
         </div>
       </div>
-    </>
+    </Dialog>
   );
-};
-
-export default Modal;
+}
