@@ -83,7 +83,7 @@ export default function Modal({ isOpen, onClose }: ModalProps) {
                   </motion.svg>
                 </div>
                 <div className="mt-2">
-                  <p className="text-lg text-gray-500">You're all set!</p>
+                  <p className="text-lg text-gray-500">You&apos;re all set!</p>
                 </div>
               </div>
             </div>
