@@ -4,6 +4,8 @@ import { Resend } from "resend";
 import groq from "groq";
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
+import { queries } from "@/sanity/lib/queries";
+import { EmailSignUp, Newsletter } from "@/sanity/lib/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const audienceId = process.env.RESEND_AUDIENCE_ID || "";
@@ -23,25 +25,8 @@ async function readBody(readable: ReadableStream): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-async function fetchEmailSignUp() {
-  const query = groq`*[_type == "emailSignUp"] | order(_updatedAt desc)[0]{
-    _id,
-    _createdAt,
-    _updatedAt,
-    title,
-    "emailSubject": emailDetails.subject,
-    "emailPreview": emailDetails.preview,
-    "emailBody": emailDetails.body[]{
-      ...,
-      _type == "blogPostReference" => {
-        ...,
-        "blogPost": @->
-      }
-    },
-    "sender": emailDetails.sender->name,
-  }`;
-
-  return client.fetch(query);
+async function fetchEmailSignUp(): Promise<EmailSignUp> {
+  return client.fetch(queries.emailSignUp);
 }
 
 async function sendIndividualEmail(emailAddress: string, emailSignUp: any) {
@@ -85,35 +70,14 @@ async function sendIndividualEmail(emailAddress: string, emailSignUp: any) {
     );
   }
 }
-
-// this is where we send out the newsletter
 async function sendNewsletter(
   documentId: string,
   selectedContacts: string[],
   offset: number = 0
 ) {
-  const newsletter = await client.fetch(
-    `*[_id == $id][0]{
-      ...,
-      "sender": emailDetails.sender->name,
-      "emailBody": emailDetails.body[]{
-        ...,
-        _type == "blogPostReference" => {
-          ...,
-          "blogPost": @->{
-            _id,
-            title,
-            slug,
-            publishedAt,
-            excerpt
-          }
-        }
-      }
-    }`,
-    { id: documentId }
-  );
-
-  console.log("Fetched newsletter data:", JSON.stringify(newsletter, null, 2));
+  const newsletter = await client.fetch<Newsletter>(queries.newsletter, {
+    id: documentId,
+  });
 
   if (!newsletter || newsletter._type !== "newsLetter") {
     return NextResponse.json(

@@ -1,37 +1,37 @@
-import { defineType, defineArrayMember } from 'sanity';
+import { defineType, defineArrayMember } from "sanity";
 
 export default defineType({
-  title: 'Block Content',
-  name: 'blockContent',
-  type: 'array',
+  title: "Block Content",
+  name: "blockContent",
+  type: "array",
   of: [
     defineArrayMember({
-      title: 'Block',
-      type: 'block',
+      title: "Block",
+      type: "block",
       styles: [
-        { title: 'Normal', value: 'normal' },
-        { title: 'H1', value: 'h1' },
-        { title: 'H2', value: 'h2' },
-        { title: 'H3', value: 'h3' },
-        { title: 'H4', value: 'h4' },
-        { title: 'Quote', value: 'blockquote' },
+        { title: "Normal", value: "normal" },
+        { title: "H1", value: "h1" },
+        { title: "H2", value: "h2" },
+        { title: "H3", value: "h3" },
+        { title: "H4", value: "h4" },
+        { title: "Quote", value: "blockquote" },
       ],
-      lists: [{ title: 'Bullet', value: 'bullet' }],
+      lists: [{ title: "Bullet", value: "bullet" }],
       marks: {
         decorators: [
-          { title: 'Strong', value: 'strong' },
-          { title: 'Emphasis', value: 'em' },
+          { title: "Strong", value: "strong" },
+          { title: "Emphasis", value: "em" },
         ],
         annotations: [
           {
-            title: 'URL',
-            name: 'link',
-            type: 'object',
+            title: "URL",
+            name: "link",
+            type: "object",
             fields: [
               {
-                title: 'URL',
-                name: 'href',
-                type: 'url',
+                title: "URL",
+                name: "href",
+                type: "url",
               },
             ],
           },
@@ -40,40 +40,40 @@ export default defineType({
     }),
 
     defineArrayMember({
-      type: 'image',
+      type: "image",
       options: { hotspot: true },
       fields: [
         {
-          name: 'alt',
-          type: 'string',
-          title: 'Alternative Text',
+          name: "alt",
+          type: "string",
+          title: "Alternative Text",
         },
       ],
     }),
-    
+
     defineArrayMember({
-      title: 'Button',
-      name: 'button',
-      type: 'object',
+      title: "Button",
+      name: "button",
+      type: "object",
       fields: [
         {
-          title: 'Label',
-          name: 'label',
-          type: 'string',
+          title: "Label",
+          name: "label",
+          type: "string",
         },
         {
-          title: 'Link',
-          name: 'link',
-          type: 'url',
+          title: "Link",
+          name: "link",
+          type: "url",
         },
         {
-          title: 'Style',
-          name: 'style',
-          type: 'string',
+          title: "Style",
+          name: "style",
+          type: "string",
           options: {
             list: [
-              { title: 'Primary', value: 'primary' },
-              { title: 'Secondary', value: 'secondary' },
+              { title: "Primary", value: "primary" },
+              { title: "Secondary", value: "secondary" },
             ],
           },
         },
@@ -81,38 +81,70 @@ export default defineType({
     }),
 
     defineArrayMember({
-      title: 'Custom Image Grid',
-      name: 'customImageGrid',
-      type: 'object',
+      title: "Custom Image Grid",
+      name: "customImageGrid",
+      type: "object",
       fields: [
         {
-          name: 'images',
-          type: 'array',
+          name: "images",
+          type: "array",
           of: [
             {
-              type: 'image',
+              type: "image",
               options: { hotspot: true },
               fields: [
                 {
-                  name: 'alt',
-                  type: 'string',
-                  title: 'Alternative Text',
+                  name: "alt",
+                  type: "string",
+                  title: "Alternative Text",
                 },
               ],
             },
           ],
           options: {
-            layout: 'grid',
+            layout: "grid",
           },
         },
       ],
     }),
 
     defineArrayMember({
-      title: 'Blog Post Reference',
-      name: 'blogPostReference',
-      type: 'reference',
-      to: [{ type: 'blogPost' }],
+      title: "Blog Post Reference",
+      name: "blogPostReference",
+      type: "reference",
+      to: [{ type: "post" }],
+    }),
+
+    defineArrayMember({
+      title: "Product Reference",
+      name: "productReference",
+      type: "object",
+      fields: [
+        {
+          name: "product",
+          type: "reference",
+          to: [{ type: "product" }],
+        },
+      ],
+    }),
+    defineArrayMember({
+      title: "Product Grid",
+      name: "productGrid",
+      type: "object",
+      fields: [
+        {
+          name: "products",
+          title: "Products",
+          type: "array",
+          of: [
+            {
+              type: "reference",
+              to: [{ type: "product" }],
+            },
+          ],
+          validation: (Rule) => Rule.required().min(1).max(3),
+        },
+      ],
     }),
   ],
 });

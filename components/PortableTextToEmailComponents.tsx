@@ -1,7 +1,144 @@
+// components/PortableTextToEmailComponents.tsx
 import * as React from "react";
 import { PortableTextBlock } from "@portabletext/types";
-import { Text, Img, Link, Button, Section } from "@react-email/components";
+import {
+  Text,
+  Img,
+  Link,
+  Button,
+  Section,
+  Heading,
+  Column,
+  Row,
+} from "@react-email/components";
 import { urlForImage } from "@/sanity/lib/image";
+
+const renderProductGrid = (block: any, blockIndex: number) => {
+  if (!block.products || block.products.length === 0) {
+    return <Text key={blockIndex}>No products to display</Text>;
+  }
+
+  // Limit to 3 products
+  const products = block.products.slice(0, 3);
+
+  return (
+    <Section key={blockIndex} style={{ margin: "16px 0" }}>
+      <Row style={{ width: "100%", textAlign: "center" }}>
+        {products.map((product: any, index: number) => {
+          const { title, price, slug, images } = product;
+          const imageUrl =
+            images && images.length > 0 && images[0].asset
+              ? images[0].asset.url
+              : null;
+
+          return (
+            <Column
+              key={index}
+              style={{
+                display: "inline-block",
+                verticalAlign: "top",
+                width: "33%",
+                maxWidth: "33%",
+                padding: "0 4px",
+                boxSizing: "border-box",
+              }}
+            >
+              {imageUrl && (
+                <Img
+                  alt={title}
+                  src={imageUrl}
+                  width="100%"
+                  style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+                />
+              )}
+              <Heading
+                style={{
+                  margin: "24px 0 0",
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  color: "#111827",
+                  lineHeight: "28px",
+                }}
+              >
+                {title}
+              </Heading>
+              {/* Optional description can be added here */}
+              <Text
+                style={{
+                  margin: "8px 0 0",
+                  fontSize: "16px",
+                  fontWeight: "bold",
+                  color: "#111827",
+                  lineHeight: "24px",
+                }}
+              >
+                ${price}
+              </Text>
+              <Button
+                style={{
+                  marginTop: "16px",
+                  borderRadius: "8px",
+                  backgroundColor: "#4F46E5",
+                  color: "#FFFFFF",
+                  fontWeight: "bold",
+                  textDecoration: "none",
+                  display: "inline-block",
+                  padding: "12px 24px",
+                }}
+                href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/products/${slug?.current}`}
+              >
+                View Product
+              </Button>
+            </Column>
+          );
+        })}
+      </Row>
+    </Section>
+  );
+};
+
+const renderProductReference = (block: any, blockIndex: number) => {
+  if (!block.product) {
+    return <Text key={blockIndex}>Product reference (no data)</Text>;
+  }
+
+  const { title, price, slug, images } = block.product;
+  const imageUrl = images && images.length > 0 ? urlForImage(images[0]) : null;
+
+  return (
+    <Section
+      key={blockIndex}
+      style={{ margin: "20px 0", padding: "10px", border: "1px solid #ccc" }}
+    >
+      {imageUrl && (
+        <Img
+          src={imageUrl}
+          alt={title}
+          width={600}
+          height={400}
+          style={{ width: "100%", height: "auto", objectFit: "cover" }}
+        />
+      )}
+      <Heading
+        style={{ fontSize: "18px", fontWeight: "bold", marginTop: "10px" }}
+      >
+        {title}
+      </Heading>
+      <Text style={{ fontSize: "16px", color: "#666" }}>Price: ${price}</Text>
+      <Link
+        href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/products/${slug?.current}`}
+        style={{
+          color: "#007291",
+          textDecoration: "underline",
+          marginTop: "10px",
+          display: "inline-block",
+        }}
+      >
+        View Product
+      </Link>
+    </Section>
+  );
+};
 
 const renderTextWithMarks = (child: any, childIndex: number) => {
   let textElement = child.text;
@@ -29,24 +166,6 @@ const renderTextWithMarks = (child: any, childIndex: number) => {
   }
 
   return textElement;
-};
-
-const renderImageGrid = (block: any, blockIndex: number) => {
-  const images = block.images || [];
-  return (
-    <div key={blockIndex} className="my-4 grid grid-cols-2 gap-4">
-      {images.map((image: any, imageIndex: number) => (
-        <Img
-          key={imageIndex}
-          src={urlForImage(image)}
-          alt={image.alt || "Grid image"}
-          width={400}
-          height={400}
-          className="h-auto w-full rounded-lg object-cover"
-        />
-      ))}
-    </div>
-  );
 };
 
 const renderButton = (block: any, blockIndex: number) => (
@@ -177,36 +296,60 @@ export const PortableTextToEmailComponents = (
     }
   };
 
-  const renderBlogPostReference = (block: any, blockIndex: number) => {
-    console.log("Blog Post Reference block:", block);
+const renderBlogPostReference = (block: any, blockIndex: number) => {
+  if (!block.post) {
+    return <Text key={blockIndex}>Blog post reference (no data)</Text>;
+  }
 
-    if (!block.blogPost) {
-      console.log("No blog post data found");
-      return <Text key={blockIndex}>Blog post reference (no data)</Text>;
-    }
+  const { title, slug, mainImage, _createdAt, body } = block.post;
+  const imageUrl = mainImage?.asset?.url;
+  const excerpt = body?.[0]?.children?.[0]?.text?.substring(0, 150) + "...";
 
-    return (
-      <Section
-        key={blockIndex}
-        style={{ margin: "20px 0", padding: "10px", border: "1px solid #ccc" }}
+  return (
+    <Section
+      key={blockIndex}
+      style={{ margin: "20px 0", padding: "10px", border: "1px solid #ccc" }}
+    >
+      {imageUrl && (
+        <Img
+          src={imageUrl}
+          alt={mainImage.alt || title}
+          width={600}
+          height={400}
+          style={{ width: "100%", height: "auto", objectFit: "cover" }}
+        />
+      )}
+      <Text style={{ fontSize: "18px", fontWeight: "bold" }}>
+        {title || "Untitled"}
+      </Text>
+      <Text style={{ fontSize: "14px", color: "#666" }}>
+        {_createdAt
+          ? new Date(_createdAt).toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : ""}
+      </Text>
+      {excerpt && (
+        <Text style={{ fontSize: "16px", color: "#444", marginTop: "10px" }}>
+          {excerpt}
+        </Text>
+      )}
+      <Link
+        href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/blog/${slug?.current}`}
+        style={{
+          color: "#007291",
+          textDecoration: "underline",
+          marginTop: "10px",
+          display: "inline-block",
+        }}
       >
-        <Text style={{ fontSize: "18px", fontWeight: "bold" }}>
-          {block.blogPost.title || "Untitled"}
-        </Text>
-        <Text style={{ fontSize: "14px", color: "#666" }}>
-          {new Date(block.blogPost.publishedAt).toLocaleDateString()}
-        </Text>
-        <Text>{block.blogPost.excerpt}</Text>
-        <Text>
-          <a
-            href={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/blog/${block.blogPost.slug.current}`}
-          >
-            Read more
-          </a>
-        </Text>
-      </Section>
-    );
-  };
+        Read more
+      </Link>
+    </Section>
+  );
+};
 
   blocks.forEach((block: any, blockIndex) => {
     if (block._type === "block") {
@@ -232,6 +375,12 @@ export const PortableTextToEmailComponents = (
     } else if (block._type === "blogPostReference") {
       flushList();
       result.push(renderBlogPostReference(block, blockIndex));
+    } else if (block._type === "productReference") {
+      flushList();
+      result.push(renderProductReference(block, blockIndex));
+    } else if (block._type === "productGrid") {
+      flushList();
+      result.push(renderProductGrid(block, blockIndex));
     }
   });
 

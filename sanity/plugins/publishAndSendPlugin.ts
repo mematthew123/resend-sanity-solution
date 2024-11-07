@@ -32,43 +32,17 @@ const PublishAndSendAction: DocumentActionComponent = (props) => {
     try {
       publish.execute();
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const selectedContacts = parseContacts(newsLetterDraft.contacts);
       if (!Array.isArray(selectedContacts)) {
         throw new Error("Selected contacts is not an array");
       }
 
-      // Initialize offset for polling
-      let offset = 0;
-      let hasMore = true;
+      console.log("Selected contacts for API:", selectedContacts);
 
-      while (hasMore) {
-        const response = await fetch(`/api/send`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            documentId: id,
-            selectedContacts,
-            offset,
-          }),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(`Error: ${result.message}`);
-        }
-
-        if (result.message === "All emails sent successfully") {
-          hasMore = false;
-        } else if (result.offset !== undefined) {
-          offset = result.offset;
-        } else {
-          throw new Error("Unexpected response structure from the server.");
-        }
-      }
+      await sendNewsletter(id, selectedContacts);
     } catch (error) {
+      console.error("Error in handleSendNewsletter:", error);
     } finally {
       props.onComplete();
     }
@@ -85,11 +59,15 @@ const parseContacts = (contacts?: string): string[] => {
   try {
     return JSON.parse(contacts || "[]");
   } catch (error) {
+    console.error("Error parsing contacts:", error);
     return [];
   }
 };
 
-async (documentId: string, selectedContacts: string[]) => {
+const sendNewsletter = async (
+  documentId: string,
+  selectedContacts: string[]
+) => {
   const response = await fetch(`/api/send`, {
     method: "POST",
     headers: {

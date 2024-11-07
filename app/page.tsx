@@ -1,7 +1,5 @@
 import BlogSection from "@/components/BlogSection";
 import NewsLetter from "@/components/NewsLetterForm";
-import { client } from "@/sanity/lib/client";
-import { groq } from "next-sanity";
 
 export const revalidate = 1;
 
@@ -20,7 +18,7 @@ export default async function Home() {
       </div>
       <div className="mt-16 w-full  p-8 bg-white rounded-lg shadow-md">
         <NewsLetter />
-        {/* <BlogSection /> */}
+        <BlogSection />
       </div>
     </div>
   );

@@ -12,69 +12,8 @@ import { structureTool } from "sanity/structure";
 import { apiVersion, dataset, projectId } from "./sanity/env";
 import { schema } from "./sanity/schema";
 import { publishAndSendPlugin } from "./sanity/plugins/publishAndSendPlugin";
-import { resendContactManagerPlugin } from "./sanity/plugins/resendContactManagerPlugin";
-import { EnvelopeIcon } from "@sanity/icons";
-import { CheckmarkCircleIcon } from "@sanity/icons";
-import { PresentationIcon } from "@sanity/icons";
-import { DiamondIcon } from "@sanity/icons";
-import { TextIcon } from "@sanity/icons";
-import { HighlightIcon } from "@sanity/icons";
-import {BoltIcon} from '@sanity/icons';
-import { BookIcon } from "@sanity/icons";
-import { UsersIcon } from "@sanity/icons";
-import { TagIcon } from "@sanity/icons";
-
-const structure = (S: any) =>
-  S.list()
-    .title("Content")
-    .items([
-      S.listItem()
-        .title("Emails")
-        .icon(EnvelopeIcon)
-        .child(
-          S.list()
-            .title("Emails")
-            .items([
-              S.documentTypeListItem("newsLetter")
-                .title("Newsletter (Marketing Email)")
-                .icon(DiamondIcon),
-              S.documentTypeListItem("emailSignUp")
-                .title("Email Sign Up (Transactional Email)")
-                .icon(CheckmarkCircleIcon),
-              S.documentTypeListItem("sender")
-                .title("Sender (Who is sending the email)")
-                .icon(PresentationIcon),
-            ])
-        ),
-      
-  // Blog Folder
-      S.listItem()
-        .title("Blog")
-        .icon(BookIcon)
-        .child(
-          S.list()
-            .title("Blog")
-            .items([
-              S.documentTypeListItem("blogPost")
-                .title("Blog Posts")
-                .icon(TextIcon),
-              S.documentTypeListItem("author")
-                .title("Authors")
-                .icon(UsersIcon),
-              S.documentTypeListItem("category")
-                .title("Categories")
-                .icon(TagIcon),
-            ])
-        ),
-      
-      // Add other default items
-      ...S.documentTypeListItems().filter(
-        (listItem: { getId: () => string }) =>
-          !["newsLetter", "emailSignUp", "sender", "blogPost", "author", "category"].includes(
-            listItem.getId() as string
-          )
-      ),
-    ]);
+import { contactManagerPlugin } from "./sanity/plugins/resendContactManagerPlugin";
+import { structure } from "@/sanity/structure";
 
 export default defineConfig({
   basePath: "/studio",
@@ -91,7 +30,6 @@ export default defineConfig({
     // https://www.sanity.io/docs/the-vision-plugin
     visionTool({ defaultApiVersion: apiVersion }),
     publishAndSendPlugin(),
-    resendContactManagerPlugin(),
-    
+    contactManagerPlugin(),
   ],
 });
